@@ -1,0 +1,71 @@
+#pragma once
+
+#include "PluginProcessor.h"
+#include "State/GlobalSettings.h"
+#include "UI/Theme.h"
+#include "UI/Pages.h"
+#include "UI/Keyboard.h"
+#include "UI/Bars.h"
+#include "UI/ModDrawer.h"
+
+// Panel background with the walnut cheeks and the name plate; hosts the current page
+class Stage : public juce::Component
+{
+public:
+    void paint (juce::Graphics&) override;
+    void setLayerBadge (const juce::String& s) { badge = s; repaint(); }
+    static constexpr int height = 614;
+
+private:
+    juce::String badge;
+    juce::Image texture;
+};
+
+// The window: top bar, panel pages, keyboard, bottom bar, modulation drawer.
+// Laid out at a fixed logical size (1200 x 826) and scaled as a whole.
+class ResoOGEditor : public juce::AudioProcessorEditor,
+                     public juce::DragAndDropContainer,
+                     private juce::Timer,
+                     private juce::ChangeListener
+{
+public:
+    explicit ResoOGEditor (ResoOGProcessor&);
+    ~ResoOGEditor() override;
+
+    void paint (juce::Graphics&) override;
+    void resized() override;
+    bool keyPressed (const juce::KeyPress&) override;
+
+    void showPage (int index);
+    int getPage() const { return page; }
+    void setModDrawer (bool open, int selectSlot = -1);
+    bool isModDrawerOpen() const { return drawer.isVisible(); }
+    void setScalePercent (int percent);
+    Page* getPageComponent (int i) { return pages[i]; }
+
+    static constexpr int logicalWidth = 1200, logicalHeight = 826;
+
+private:
+    void timerCallback() override;
+    void changeListenerCallback (juce::ChangeBroadcaster*) override;
+    void updateTooltips();
+
+    ResoOGProcessor& proc;
+    juce::SharedResourcePointer<GlobalSettings> settings;
+    ResoLookAndFeel lnf;
+
+    juce::Component content;
+    TopBar top;
+    Stage stage;
+    juce::OwnedArray<Page> pages;
+    KeyboardPanel keyboard;
+    BottomBar bottom;
+    ModDrawer drawer;
+    std::unique_ptr<juce::TooltipWindow> tooltips;
+    juce::ComponentBoundsConstrainer constrainer;
+
+    int page = 0, tick = 0;
+    float scale = 1.0f;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ResoOGEditor)
+};

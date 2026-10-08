@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>ResoOG mockup</title>
+<style>
+:root{--bar:#08090b;--edge:#34353c;--text:#ecedf0;--lab:#c9cad1;--dim:#9a9ba4;--faint:#6c6d76;--gold:#f4c95d;--mono:Menlo,Consolas,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#050506;font-family:-apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif;color:var(--text);display:flex;justify-content:center;padding:24px}
+.win{width:1200px;border-radius:10px;overflow:hidden;box-shadow:0 30px 80px #000c;border:1px solid #1d1e23;position:relative}
+/* top bar */
+.top{height:36px;background:var(--bar);display:flex;align-items:center;padding:0 14px;gap:16px;font-size:12px;border-bottom:1px solid #16171b}
+.logo{font-weight:800;font-size:15px;letter-spacing:-.2px}.logo b{color:var(--gold)}
+.tabs{display:flex;gap:2px;margin-left:6px}
+.tab{padding:10px 11px;color:var(--faint);font-weight:700;font-size:11px;letter-spacing:.7px;position:relative;cursor:pointer}
+.tab:hover{color:var(--dim)}.tab.on{color:var(--text)}
+.tab.on:after{content:"";position:absolute;left:11px;right:11px;bottom:3px;height:2px;border-radius:2px;background:var(--gold)}
+.ic{color:var(--dim);font-size:14px}.chip{color:var(--dim);font-size:11.5px}.chip b{color:var(--text)}
+.preset{margin:0 auto;display:flex;align-items:center;gap:10px;color:var(--dim)}
+.preset .name{background:#15161a;border:1px solid #23242a;border-radius:5px;padding:4px 0;width:220px;text-align:center;color:var(--text);font-size:12.5px}
+.cv{border:1px solid #2a2b32;border-radius:4px;padding:2px 6px;font-family:var(--mono);font-size:10.5px;color:var(--dim)}.cv i{color:#38d6f0;font-style:normal}
+/* stage */
+.stage{position:relative;background:linear-gradient(#17181c,#0f1013);padding:18px 32px 10px;overflow:hidden}
+.stage:before,.stage:after{content:"";position:absolute;top:0;bottom:0;width:14px;z-index:2;
+ background:repeating-linear-gradient(90deg,#00000000 0 2px,#0000001f 2px 3px),linear-gradient(90deg,#3b2414,#7a4b27 40%,#5a3519 70%,#3a2212)}
+.stage:before{left:0;box-shadow:inset -1px 0 0 #000,2px 0 6px #0008}.stage:after{right:0;box-shadow:inset 1px 0 0 #000,-2px 0 6px #0008}
+.tex{position:absolute;inset:0;opacity:.05;pointer-events:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>")}
+.page{display:grid;gap:10px;position:relative}
+/* module */
+.mod{background:rgba(22,23,27,.96);border:1px solid var(--edge);border-radius:8px;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:inset 0 1px 0 #ffffff08,0 2px 8px #0006}
+.hd{height:25px;flex:none;display:flex;align-items:center;justify-content:center;position:relative;
+ background:linear-gradient(#c4c1b9,#a8a59d);color:#141416;font-size:11.5px;font-weight:800;letter-spacing:1.3px;border-bottom:2px solid var(--c)}
+.hd .dot{position:absolute;left:9px;width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 0 1.5px #0005}
+.hd .dot.blink{animation:bl var(--r,1s) infinite steps(2)}
+@keyframes bl{50%{opacity:.25}}
+.hd .r{position:absolute;right:9px;font-family:var(--mono);font-weight:700;letter-spacing:0;font-size:10px;color:#2c2c30}
+.hd .drag{position:absolute;right:8px;font-size:14px;color:#2a2a2e;letter-spacing:0}
+.hd svg.env{position:absolute;right:30px}
+.body{flex:1;display:grid;align-content:space-evenly;justify-items:center;padding:6px 6px 8px;gap:2px 0}
+/* knob */
+.k{display:flex;flex-direction:column;align-items:center;width:96px}
+.k .lb{font-size:10.5px;font-weight:800;letter-spacing:.5px;color:var(--lab);text-align:center;line-height:12px;min-height:12px;white-space:nowrap}
+.k svg{display:block}
+.k .v{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-top:-1px;white-space:nowrap}
+.k .v.m{color:var(--mc)}
+/* buttons */
+.ctl{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:80px}
+.ctl .lb{font-size:10.5px;font-weight:800;letter-spacing:.5px;color:var(--lab);white-space:nowrap}
+.btn{width:30px;height:28px;border-radius:5px;background:radial-gradient(circle at 40% 30%,#3a2d18,#1d160c 70%);border:1px solid #000;box-shadow:inset 0 1px 0 #ffffff14,0 2px 3px #0008}
+.btn.on{background:radial-gradient(circle at 40% 30%,#ffe9a6,#f4c95d 55%,#c99a2e);box-shadow:0 0 14px #f4c95d66,inset 0 1px 0 #fff8}
+.radio{display:flex;align-items:center;gap:9px}
+.leds{display:flex;flex-direction:column;gap:3px}
+.leds span{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.3px;color:var(--faint);white-space:nowrap}
+.leds span:before{content:"";width:6px;height:6px;border-radius:50%;background:#2d2e35;box-shadow:inset 0 1px 1px #000}
+.leds span.on{color:var(--text)}.leds span.on:before{background:var(--gold);box-shadow:0 0 6px var(--gold)}
+/* plate */
+.plate{display:flex;align-items:flex-end;justify-content:space-between;padding:12px 2px 2px;position:relative}
+.plate .bn{font-size:30px;font-weight:800;letter-spacing:-1px;line-height:1}.plate .bn b{color:var(--gold)}
+.plate .sub{font-size:11.5px;letter-spacing:2.5px;color:var(--dim);font-weight:700;font-style:italic;margin-left:12px}
+.plate .gv{font-size:20px;font-weight:900;letter-spacing:6px;color:#8a8b93}
+.plate .layer{font-family:var(--mono);font-size:11px;color:var(--gold);border:1px solid #f4c95d55;border-radius:4px;padding:2px 6px;margin-left:12px;vertical-align:4px}
+/* keyboard */
+.kbd{background:var(--bar);border-top:1px solid #17181c;display:flex;padding:12px 14px;gap:14px;height:148px}
+.wheel{width:26px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:10.5px;font-weight:700;color:var(--dim)}
+.wheel div{flex:1;width:18px;border-radius:5px;background:#16171b;border:1px solid #26272d;position:relative}
+.wheel div i{position:absolute;left:2px;right:2px;height:10px;border-radius:3px;background:#4a4b53}
+.keys{flex:1;display:flex;flex-direction:column;gap:6px}
+.range{height:6px;border-radius:3px;background:#16171b;position:relative}.range i{position:absolute;left:18%;width:30%;top:0;bottom:0;border-radius:3px;background:#3a3b42}
+.keyrow{flex:1;display:flex;gap:4px}
+.key{flex:1;border-radius:6px;display:flex;flex-direction:column;align-items:center;padding-top:5px;font-size:10.5px;font-weight:700;font-family:var(--mono)}
+.key.w{background:linear-gradient(#e9e8e4,#c9c7c1);color:#55565e;border:1px solid #000;box-shadow:inset 0 -3px 0 #0002}
+.key.b{background:linear-gradient(#24252a,#16171b);color:#7a7b84;border:1px solid #000}
+.key.on{box-shadow:0 0 0 2px var(--gold),0 0 16px #f4c95d55;color:#7a5a10}.key.b.on{color:var(--gold)}
+.side{width:110px;display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:-6px}.side .k .v{display:none}
+.pill{width:96px;text-align:center;padding:5px 0;border-radius:5px;background:#1c1d22;font-size:11px;font-weight:700;color:var(--lab);border:1px solid #2a2b31}
+.bot{height:28px;background:var(--bar);border-top:1px solid #16171b;display:flex;align-items:center;padding:0 14px;gap:18px;font-size:11.5px;color:var(--dim)}
+.bot .c{margin:0 auto;background:#15161a;border-radius:5px;padding:3px 26px;color:var(--text);display:flex;gap:8px;align-items:center}
+.bot .c:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.mono{font-family:var(--mono)}
+/* meters display */
+.disp{background:#0b0c0e;border:1px solid #26272d;border-radius:7px;box-shadow:inset 0 2px 8px #000}
+.fader{display:flex;flex-direction:column;align-items:center;gap:6px}
+/* mod editor */
+.drawer{position:absolute;left:0;top:36px;bottom:0;width:290px;background:rgba(12,13,16,.97);border-right:1px solid #2a2b32;z-index:5;display:none;flex-direction:column;box-shadow:12px 0 30px #0009}
+.win.modopen .drawer{display:flex}
+.drawer h2{font-size:15px;font-weight:700;padding:13px 16px 11px;border-bottom:1px solid #22232a}
+.drawer h2 small{display:block;font-size:10.5px;color:var(--dim);font-weight:600;letter-spacing:.8px;margin-bottom:3px}
+.grp{font-size:10.5px;font-weight:800;letter-spacing:1px;color:var(--dim);padding:10px 16px 4px;display:flex;justify-content:space-between}
+.src{display:flex;align-items:center;gap:10px;padding:6px 16px;font-size:13px;color:var(--lab)}
+.src i{width:11px;height:11px;border-radius:50%;border:2px solid var(--c)}
+.src.on{background:#1d1e24;color:var(--text);font-weight:700}.src.on i{background:var(--c);box-shadow:0 0 8px var(--c)}
+.src .amt{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--c)}
+.pop{position:absolute;left:300px;top:496px;width:280px;background:#141519;border:1px solid #2e2f36;border-radius:9px;z-index:6;display:none;box-shadow:0 16px 40px #000c;overflow:hidden}
+.win.modopen .pop{display:block}
+.pop .ph{padding:11px 14px;border-bottom:1px solid #24252b;border-top:2px solid var(--c);display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px}
+.pop .ph i{width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c)}
+.pop .ph span{margin-left:auto;font-size:11px;color:var(--dim);font-weight:600}
+.row{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;font-size:12.5px;color:var(--lab)}
+.sw2{width:32px;height:18px;border-radius:9px;background:#2a2b32;position:relative}.sw2:after{content:"";position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:#8a8b93}
+.sw2.on{background:#5a4a1e}.sw2.on:after{left:16px;background:var(--gold)}
+.sl{padding:0 14px 8px}.sl .tr{height:4px;border-radius:2px;background:#26272d;position:relative}
+.sl .tr b{position:absolute;top:0;bottom:0;background:var(--c);border-radius:2px}.sl .tr i{position:absolute;top:-5px;width:14px;height:14px;border-radius:50%;background:#e6e6ea;margin-left:-7px;box-shadow:0 1px 3px #000}
+.dd{background:#1c1d22;border:1px solid #2a2b31;border-radius:5px;padding:3px 9px;width:150px;display:flex;justify-content:space-between;color:var(--text);font-size:12px}
+.v2{font-family:var(--mono);font-size:11.5px;color:var(--text)}
+</style></head><body>
+<div class="win" id="win">
+ <div class="top">
+  <div class="logo">Reso<b>OG</b></div>
+  <div class="tabs" id="tabs"></div>
+  <span class="ic">↶</span><span class="ic" style="opacity:.4">↷</span><span class="chip"><b>A</b>/B</span><span class="chip">Copy</span>
+  <div class="preset"><span>‹</span><div class="name">Deep Blue S+H <span style="color:var(--gold)">★</span></div><span>›</span></div>
+  <span class="cv">CV <i>HXSX</i></span><span class="chip" id="modbtn" style="cursor:pointer">Mod</span><span class="chip">Help</span><span class="ic">⛶</span>
+ </div>
+ <div class="stage"><div class="tex"></div><div class="page" id="page"></div>
+  <div class="plate"><div><span class="bn">Reso<b>OG</b></span><span class="sub">DUAL-LAYER BASS SYNTHESIZER</span><span class="layer" id="layer"></span></div><span class="gv">GAVR</span></div>
+ </div>
+ <div class="kbd">
+  <div class="wheel">PB<div><i style="top:44%"></i></div></div>
+  <div class="wheel">MW<div><i style="bottom:3px"></i></div></div>
+  <div class="keys"><div class="range"><i></i></div><div class="keyrow" id="keys"></div></div>
+  <div class="side" id="side"></div>
+ </div>
+ <div class="bot"><span>Mono · Layered</span><span>Silent preset change</span><div class="c">Bass · Deep Blue S+H</div><span>Oversampling 2×</span><span class="mono" style="color:var(--text)">CPU 4 %</span><span class="mono" style="color:var(--text)">0.0 dB</span></div>
+ <div class="drawer" id="drawer"></div><div class="pop" id="pop"></div>
+</div>
+<script>
+// ---------- colours: sound sources + modulation sources ----------
+const C={osc:'#38d6f0',sub:'#b98bff',noise:'#ff74b8',mix:'#ff9a4d',flt:'#f4c95d',voice:'#a5e844',out:'#e6e6ea',
+ lfo1:'#38d6f0',lfo2:'#4aa8ff',lfo3:'#b98bff',fenv:'#ff9a4d',aenv:'#a5e844',menv:'#ff74b8',rnd1:'#ffe066',rnd2:'#5ee0c8',fx1:'#ff9a4d',fx2:'#4aa8ff',comp:'#f4c95d'};
+const A0=-135,rad=a=>(a-90)*Math.PI/180,pt=(cx,cy,r,a)=>[cx+r*Math.cos(rad(a)),cy+r*Math.sin(rad(a))];
+function arc(cx,cy,r,a,b){const[s,e]=[pt(cx,cy,r,a),pt(cx,cy,r,b)];return `M${s[0]} ${s[1]}A${r} ${r} 0 ${b-a>180?1:0} 1 ${e[0]} ${e[1]}`}
+let gid=0;
+// knob: {l,v,c,t,lo,hi,bi,mod:[srcKey,depth,label],drive,marks:[...],small}
+function knob(o){const col=C[o.c]||o.c,sm=o.small,W=sm?78:96,H=sm?60:70,cx=W/2,cy=sm?27:33,R=sm?16:21,id='g'+(gid++),a=A0+o.v*270;let g='';
+ for(let i=0;i<=10;i++){const t=A0+i*27,[x1,y1]=pt(cx,cy,R+(i%5?4.5:3),t),[x2,y2]=pt(cx,cy,R+8,t);g+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#fff" stroke-opacity="${i%5?.2:.45}" stroke-width="1.1"/>`}
+ if(o.drive)g+=`<path d="${arc(cx,cy,R+10.5,A0+.7*270,135)}" stroke="#ff5c6c" stroke-opacity=".7" stroke-width="2" fill="none"/>`;
+ g+=`<path d="${arc(cx,cy,R+1.5,A0,135)}" stroke="#fff" stroke-opacity=".08" stroke-width="2.4" fill="none"/>`;
+ const f=o.bi?0:A0,[lo,hi]=[Math.min(f,a),Math.max(f,a)];
+ if(hi-lo>1)g+=`<path d="${arc(cx,cy,R+1.5,lo,hi)}" stroke="${col}" stroke-opacity=".14" stroke-width="8" fill="none"/><path d="${arc(cx,cy,R+1.5,lo,hi)}" stroke="${col}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+ if(o.mod){const mc=C[o.mod[0]],d=o.mod[1]*270,[mx,my]=pt(cx,cy,R+10.5,a+d*.45);g+=`<path d="${arc(cx,cy,R+10.5,Math.max(A0,a-d),Math.min(135,a+d))}" stroke="${mc}" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="${mx}" cy="${my}" r="2.4" fill="#fff"/>`}
+ // body: knurled skirt + brushed metal cap (Moog nod)
+ g+=`<defs><radialGradient id="${id}b" cx=".45" cy=".3" r=".8"><stop offset="0" stop-color="#34353c"/><stop offset="1" stop-color="#0d0e11"/></radialGradient>
+ <radialGradient id="${id}c" cx=".4" cy=".3" r=".9"><stop offset="0" stop-color="#d8d9dd"/><stop offset=".45" stop-color="#8d8f96"/><stop offset="1" stop-color="#3c3d43"/></radialGradient></defs>
+ <circle cx="${cx}" cy="${cy+2}" r="${R-1.5}" fill="#000" opacity=".55"/><circle cx="${cx}" cy="${cy}" r="${R-1.5}" fill="url(#${id}b)" stroke="#000"/>
+ <circle cx="${cx}" cy="${cy}" r="${R-3}" fill="none" stroke="#fff" stroke-opacity=".09" stroke-width="2" stroke-dasharray="1 2.2"/>
+ <circle cx="${cx}" cy="${cy}" r="${R*.52}" fill="url(#${id}c)" stroke="#000" stroke-opacity=".6"/>`;
+ const[p0x,p0y]=pt(cx,cy,R*.15,a),[p1x,p1y]=pt(cx,cy,R-3.5,a);
+ g+=`<line x1="${p0x}" y1="${p0y}" x2="${p1x}" y2="${p1y}" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><line x1="${p0x}" y1="${p0y}" x2="${p1x}" y2="${p1y}" stroke="#000" stroke-opacity=".25" stroke-width="4" stroke-linecap="round" transform="translate(0 .8)" style="mix-blend-mode:multiply"/>`;
+ // scale end labels / marks
+ const tx=(x,y,s,an,c='#8b8c95')=>`<text x="${x}" y="${y}" text-anchor="${an}" font-size="9" font-weight="700" fill="${c}" font-family="-apple-system,Arial">${s}</text>`;
+ if(o.lo!==undefined){const[lx,ly]=pt(cx,cy,R+11,-135),[hx,hy]=pt(cx,cy,R+11,135);g+=tx(lx+2,ly+9,o.lo,'end')+tx(hx-2,hy+9,o.hi,'start')}
+ if(o.marks){const n=o.marks.length;o.marks.forEach((s,i)=>{const t=n==1?0:A0+i*270/(n-1),[x,y]=pt(cx,cy,R+15,t);g+=tx(x,y+3.5,s,'middle',i===o.sel?col:'#8b8c95')})}
+ const vt=o.mod?`<span class="v m" style="--mc:${C[o.mod[0]]}">${o.mod[2]}</span>`:`<span class="v">${o.t||''}</span>`;
+ return `<div class="k" style="${sm?'width:80px':''}"><span class="lb">${o.l||''}</span><svg width="${W}" height="${H}" overflow="visible" style="${o.marks?'margin-top:12px':''}">${g}</svg>${vt}</div>`}
+const btn=(l,on)=>`<div class="ctl"><span class="lb">${l}</span><div class="btn ${on?'on':''}"></div></div>`;
+const radio=(l,opts,sel)=>`<div class="ctl" style="align-items:flex-start"><span class="lb">${l}</span><div class="radio"><div class="btn"></div><div class="leds">${opts.map((o,i)=>`<span class="${i==sel?'on':''}">${o}</span>`).join('')}</div></div></div>`;
+const blank='<div></div>';
+function mod(o){const dot=o.rate?`<span class="dot blink" style="--r:${o.rate}"></span>`:'<span class="dot"></span>';
+ return `<div class="mod" style="--c:${C[o.c]};grid-area:${o.a}"><div class="hd">${dot}${o.t}${o.env||''}${o.src?'<span class="drag" title="Drag to modulate">⤳</span>':''}${o.r?`<span class="r">${o.r}</span>`:''}</div>
+ <div class="body" style="grid-template-columns:${o.cols||'1fr'};${o.bs||''}">${o.items.join('')}</div></div>`}
+const envIcon=(pts,c)=>`<svg class="env" width="46" height="14"><path d="${pts}" stroke="#2a2a2e" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>`;
+const WAVES=['∿','⋀','◿','⊿','⊓'];
+
+// ---------- pages ----------
+function synth(L){const s=L==1;return {grid:'grid-template-columns:150px 340px 120px 1fr 160px;grid-template-rows:repeat(3,172px);grid-template-areas:"noise osc mix lpf filt" "voice osc mix hpf filt" "voice sub mix subf subf"',
+ mods:[
+ mod({t:'NOISE',c:'noise',a:'noise',items:[knob({l:'NOISE COLOR',v:s?.38:.6,c:'noise',bi:1,marks:['RED','PINK','WHITE','BLUE','VIOLET'],sel:s?1:3,t:s?'pink':'blue'})]}),
+ mod({t:'DUAL OSCILLATOR',c:'osc',a:'osc',cols:'1fr 1fr 1fr',items:[
+  knob({l:'FREQUENCY',v:.5,c:'osc',bi:1,lo:'-7',hi:'+7',t:'0 st'}),knob({l:'OSC 2 DETUNE',v:s?.53:.47,c:'osc',bi:1,lo:'-7',hi:'+7',t:s?'+0.08 st':'-0.12 st'}),knob({l:'GLIDE',v:s?.22:0,c:'osc',lo:'0',hi:'10s',t:s?'48 ms':'off'}),
+  radio('OSC 2 OCTAVE',['+2','+1','+0'],s?2:1),btn('HARD SYNC',s),btn('KEY RESET',!s),
+  knob({l:'OSC 2 PHASE',v:.5,c:'osc',lo:'0°',hi:'360°',t:'180°'}),knob({l:'WAVESHAPE',v:s?.5:.75,c:'osc',marks:WAVES,sel:s?2:3,t:s?'Sharktooth':'Saw'}),
+  s?knob({l:'DUTY CYCLE',v:.62,c:'osc',lo:'0',hi:'100',mod:['menv',.12,'MOD ENV +24 %']}):knob({l:'DUTY CYCLE',v:.5,c:'osc',lo:'0',hi:'100',t:'50 %'})]}),
+ mod({t:'MIXER',c:'mix',a:'mix',bs:'align-content:space-between;padding-top:10px',items:[
+  knob({l:'OSC 1',v:s?.86:.7,c:'osc',drive:1,lo:'0',hi:'10',t:s?'8.6':'7.0'}),knob({l:'OSC 2',v:s?.62:.7,c:'osc',drive:1,lo:'0',hi:'10',t:s?'6.2':'7.0'}),
+  knob({l:'NOISE',v:s?.18:0,c:'noise',drive:1,lo:'0',hi:'10',t:s?'1.8':'0.0'}),knob({l:'SUB',v:s?.7:.4,c:'sub',drive:1,lo:'0',hi:'10',t:s?'7.0':'4.0'}),
+  `<div style="width:96px"><div style="font-size:10px;font-weight:800;letter-spacing:.8px;color:var(--lab);display:flex;justify-content:space-between"><span>DRIVE</span><span class="mono" style="color:#ff9a4d">${s?'+2.4':'0.0'}</span></div><div style="height:5px;border-radius:3px;background:#24252b;margin-top:5px;overflow:hidden"><div style="width:${s?58:8}%;height:100%;background:linear-gradient(90deg,#a02a6a,#ff5c6c,#ff9a4d)"></div></div></div>`]}),
+ mod({t:'LOW PASS FILTER',c:'flt',a:'lpf',r:'24 dB',cols:'1fr 1fr 1fr',items:[
+  s?knob({l:'CUTOFF',v:.55,c:'flt',lo:'16',hi:'20k',mod:['lfo1',.1,'LFO 1 ±20 %']}):knob({l:'CUTOFF',v:.38,c:'flt',lo:'16',hi:'20k',t:'420 Hz'}),
+  knob({l:'RESONANCE',v:s?.62:.3,c:'flt',lo:'0',hi:'10',t:s?'6.2':'3.0'}),knob({l:'EG AMOUNT',v:s?.78:.65,c:'flt',bi:1,lo:'-10',hi:'+10',t:s?'+5.6':'+3.0'})]}),
+ mod({t:'HIGH PASS FILTER',c:'flt',a:'hpf',r:'12 dB',cols:'1fr 1fr 1fr',items:[
+  knob({l:'CUTOFF',v:.14,c:'flt',lo:'16',hi:'20k',t:s?'42 Hz':'38 Hz'}),knob({l:'RESONANCE',v:.5,c:'flt',lo:'0',hi:'10',t:'5.0'}),knob({l:'EG AMOUNT',v:.72,c:'flt',bi:1,lo:'-10',hi:'+10',t:'+4.4'})]}),
+ mod({t:'FILTERS',c:'flt',a:'filt',bs:'align-content:space-around',items:[radio('ORDER',['SERIAL','PARALLEL','HPF NOISE'],s?0:2),
+  knob({l:'OSC CROSSOVER',v:.5,c:'flt',bi:1,lo:'SUB',hi:'VCOS',t:'120 Hz'}),btn('ON / OFF',s)]}),
+ mod({t:'VOICING',c:'voice',a:'voice',bs:'align-content:space-around',items:[radio('LEGATO MODE',['RE-TRIG','LEGATO','ADD'],s?0:1),
+  knob({l:'DUAL OSC SPREAD',v:s?.65:.2,c:'voice',lo:'0',hi:'10',t:s?'6.5':'2.0'}),btn('ACCENT',!s)]}),
+ mod({t:'SUB OSC',c:'sub',a:'sub',cols:'1fr 1fr 1fr',items:[knob({l:'PHASE',v:.5,c:'sub',lo:'0°',hi:'360°',t:'180°'}),
+  knob({l:'WAVESHAPE',v:s?1:0,c:'sub',marks:['∿','◿','⊓'],sel:s?2:0,t:s?'Square':'Sine'}),radio('FREQ OFFSET',['-1 OCTAVE','-1 LINKED','-2 OCTAVE'],s?0:2)]}),
+ mod({t:'SUB FILTER',c:'sub',a:'subf',r:'mono',cols:'1fr 1fr 1fr 1.2fr',items:[knob({l:'CUTOFF',v:s?.45:.3,c:'sub',lo:'16',hi:'8k',t:s?'180 Hz':'95 Hz'}),
+  knob({l:'RESONANCE',v:.3,c:'sub',lo:'0',hi:'10',t:'3.0'}),knob({l:'EG AMOUNT',v:.5,c:'sub',bi:1,lo:'-10',hi:'+10',t:'0.0'}),radio('FILTER MODE',['HIGH','BAND','LOW'],2)]})
+ ]}}
+function cntrl(L){const s=L==1;const lfo=(n,v,syn,kb,w,ph,rate)=>mod({t:'LFO '+n,c:'lfo'+n,a:'l'+n,rate,src:1,cols:'1fr .7fr 1fr 1fr',items:[
+  knob({l:'RATE',v,c:'lfo'+n,lo:syn?'8 bar':'.05',hi:syn?'1/64':'50',t:syn?'1/8 D':(0.05*Math.pow(1000,v)).toFixed(2)+' Hz'}),
+  `<div style="display:flex;flex-direction:column;gap:12px">${btn('SYNC',syn)}${btn('KB RESET',kb)}</div>`,
+  knob({l:'WAVESHAPE',v:w/4,c:'lfo'+n,marks:['∿','⋀','⟋','⟍','⊓'],sel:w,t:['Sine','Triangle','Ramp up','Ramp down','Square'][w]}),knob({l:'PHASE',v:ph,c:'lfo'+n,lo:'0°',hi:'360°',t:Math.round(ph*360)+'°'})]});
+ const adsr=(t,c,a,v)=>mod({t,c,a,src:1,cols:'repeat(4,1fr)',env:envIcon('M2 13 L8 2 L16 7 L34 7 L44 13'),items:[
+  knob({l:'ATTACK',v:v[0],c,lo:'1ms',hi:'10s',t:v[4]}),knob({l:'DECAY',v:v[1],c,lo:'1ms',hi:'30s',t:v[5]}),knob({l:'SUSTAIN',v:v[2],c,lo:'0',hi:'100',t:Math.round(v[2]*100)+' %'}),knob({l:'RELEASE',v:v[3],c,lo:'1ms',hi:'30s',t:v[6]})]});
+ const rnd=(n,v,syn,sl,m,rate)=>mod({t:'RANDOM '+n,c:'rnd'+n,a:'r'+n,rate,src:1,cols:'1fr 1fr 1.1fr',items:[
+  knob({l:'RATE',v,c:'rnd'+n,lo:syn?'8 bar':'.05',hi:syn?'1/64':'50',t:syn?'1/16':(0.05*Math.pow(1000,v)).toFixed(2)+' Hz'}),knob({l:'SLEW',v:sl,c:'rnd'+n,lo:'0',hi:'10',t:(sl*10).toFixed(1)}),
+  `<div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">${btn('SYNC',syn)}${radio('MODE',['S+H','NOISE','PERLIN'],m).replace('<span class="lb">MODE</span>','')}</div>`]});
+ return {grid:'grid-template-columns:372px 1fr 300px;grid-template-rows:repeat(3,172px);grid-template-areas:"l1 fe r1" "l2 ae r2" "l3 me me"',mods:[
+  lfo(1,s?.62:.4,s,1,s?0:3,.5,'.4s'),lfo(2,.35,0,0,1,0,'1.6s'),lfo(3,.2,0,0,4,.25,'3s'),
+  adsr('FILTER ENVELOPE','fenv','fe',s?[0,.32,.25,.3,'1 ms','280 ms','','160 ms']:[0,.45,.4,.35,'1 ms','620 ms','','240 ms']),
+  adsr('AMP ENVELOPE','aenv','ae',[0,.4,.8,.18,'1 ms','420 ms','','35 ms']),
+  rnd(1,.55,s,.2,0,'.3s'),rnd(2,.3,0,.6,2,'1.2s'),
+  mod({t:'MOD ENVELOPE',c:'menv',a:'me',src:1,cols:'repeat(6,1fr)',env:envIcon('M2 13 L8 13 L14 2 L20 2 L28 7 L36 7 L44 13'),items:[
+   knob({l:'DELAY',v:.1,c:'menv',lo:'0',hi:'2s',t:'20 ms'}),knob({l:'ATTACK',v:.35,c:'menv',lo:'1ms',hi:'10s',t:'85 ms'}),knob({l:'HOLD',v:.15,c:'menv',lo:'0',hi:'2s',t:'40 ms'}),
+   knob({l:'DECAY',v:.5,c:'menv',lo:'1ms',hi:'30s',t:'900 ms',mod:s?['rnd1',.08,'RND 1 ±16 %']:null}),knob({l:'SUSTAIN',v:.4,c:'menv',lo:'0',hi:'100',t:'40 %'}),knob({l:'RELEASE',v:.4,c:'menv',lo:'1ms',hi:'30s',t:'300 ms'})]})]}}
+function meters(){const W=560,H=136;let g='';
+ const bar=(x,lv,lab)=>{let s='';for(let i=0;i<14;i++){const y=H-18-i*7.5,on=i<lv,c=i>=12?'#ff5c6c':i>=9?'#f4c95d':'#5ee08f';s+=`<rect x="${x}" y="${y}" width="8" height="5.5" rx="1.5" fill="${c}" opacity="${on?1:.12}"/>`}return s};
+ g+=bar(18,10)+bar(30,9)+bar(W-38,9)+bar(W-26,8);
+ g+=`<text x="28" y="${H-4}" text-anchor="middle" font-size="9.5" font-weight="800" fill="#c9cad1" font-family="Arial">IN</text><text x="${W-26}" y="${H-4}" text-anchor="middle" font-size="9.5" font-weight="800" fill="#c9cad1" font-family="Arial">OUT</text>`;
+ const gauge=(cx,lab,ticks,val,unit,c,read)=>{let s=`<path d="${arc(cx,96,62,-60,60)}" stroke="#fff" stroke-opacity=".12" stroke-width="3" fill="none"/>`;
+  ticks.forEach((t,i)=>{const a=-60+i*120/(ticks.length-1),[x1,y1]=pt(cx,96,58,a),[x2,y2]=pt(cx,96,66,a),[tx,ty]=pt(cx,96,77,a);s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#fff" stroke-opacity=".45"/><text x="${tx}" y="${ty+3}" text-anchor="middle" font-size="9.5" fill="#9a9ba4" font-family="Menlo">${t}</text>`});
+  const a=-60+val*120;s+=`<path d="${arc(cx,96,62,Math.min(a,c.from),Math.max(a,c.from))}" stroke="${c.col}" stroke-width="3" fill="none"/>`;
+  const[nx,ny]=pt(cx,96,64,a);s+=`<line x1="${cx}" y1="96" x2="${nx}" y2="${ny}" stroke="${c.col}" stroke-width="1.6"/><circle cx="${cx}" cy="96" r="4" fill="#2b2c33" stroke="${c.col}"/>`;
+  s+=`<text x="${cx}" y="${H-6}" text-anchor="middle" font-size="10" font-weight="800" letter-spacing="1" fill="#c9cad1" font-family="Arial">${lab}</text><text x="${cx}" y="116" text-anchor="middle" font-size="12" fill="${c.col}" font-family="Menlo">${read}</text>`;return s};
+ g+=gauge(185,'CORRELATION Ø',['-1','-.5','0','+.5','+1'],.86,'',{col:'#5ee08f',from:0},'+0.72');
+ g+=gauge(375,'GAIN REDUCTION',['-20','-12','-8','-4','0'],.82,'',{col:'#f4c95d',from:60},'-2.8 dB');
+ return `<div class="disp" style="grid-column:1/-1;width:${W}px;justify-self:center"><svg width="${W}" height="${H}">${g}</svg></div>`}
+function output(){const fx=(n,a,c,chorus)=>mod({t:`SYNTH ${n} EFFECTS`,c,a,cols:'1fr 1fr',items:[
+  knob({l:'SATURATION',v:n==1?.45:.3,c,lo:'0',hi:'10',t:n==1?'4.5':'3.0'}),knob({l:'SAT TYPE',v:n==1?.33:.66,c,marks:['OFF','TUBE','TAPE','DRIVE'],sel:n==1?1:2,t:n==1?'Tube':'Tape'}),
+  ...(chorus?[knob({l:'CHORUS RATE',v:.3,c,lo:'.5',hi:'50',t:'0.9 Hz'}),knob({l:'CHORUS DEPTH',v:.5,c,lo:'0',hi:'10',t:'5.0'}),knob({l:'CHORUS HPF',v:.45,c,lo:'40',hi:'2k',t:'300 Hz'}),knob({l:'CHORUS MIX',v:.35,c,lo:'DRY',hi:'WET',t:'35 %'}),btn('CHORUS EXPAND',0),btn('SYNC',0)]
+  :[knob({l:'DELAY TIME',v:.4,c,lo:'1/64',hi:'2 bar',t:'1/8 D'}),knob({l:'DELAY FEEDBACK',v:.45,c,lo:'0',hi:'10',t:'4.5'}),knob({l:'DELAY HPF',v:.55,c,lo:'40',hi:'2k',t:'420 Hz'}),knob({l:'DELAY MIX',v:.25,c,lo:'DRY',hi:'WET',t:'25 %'}),btn('DELAY STEREO',1),btn('SYNC',1)])]});
+ const fader=`<div class="fader" style="grid-row:span 3;align-self:stretch"><span class="k"><span class="lb">VOLUME</span></span><div style="flex:1;display:flex;gap:8px;align-items:stretch"><div style="width:8px;border-radius:4px;background:#0b0c0e;border:1px solid #26272d;position:relative"><div style="position:absolute;left:-12px;top:42%;width:30px;height:16px;border-radius:4px;background:linear-gradient(#d8d9dd,#7d7f86);border:1px solid #000;box-shadow:0 2px 4px #000"></div><div style="position:absolute;left:0;right:0;bottom:0;top:46%;background:#f4c95d;border-radius:4px;opacity:.85"></div></div><div class="mono" style="display:flex;flex-direction:column;justify-content:space-between;font-size:9.5px;color:#8b8c95">${['+12','+6','0','-6','-12','-24','-∞'].map(x=>`<span>${x}</span>`).join('')}</div></div><span class="v mono" style="font-size:10.5px;color:var(--dim)">0.0 dB</span></div>`;
+ return {grid:'grid-template-columns:262px 1fr 262px;grid-template-rows:536px;grid-template-areas:"f1 sum f2"',mods:[fx(1,'f1','fx1'),
+  mod({t:'SUMMING',c:'comp',a:'sum',cols:'1fr 1fr .8fr 1fr 1fr',bs:'grid-template-rows:auto 1fr 1fr auto',items:[meters(),
+   knob({l:'SYNTH 1 LEVEL',v:.75,c:'fx1',lo:'0',hi:'10',t:'7.5'}),knob({l:'SYNTH 2 LEVEL',v:.6,c:'fx2',lo:'0',hi:'10',t:'6.0'}),fader,knob({l:'ATTACK',v:.3,c:'comp',lo:'.01ms',hi:'1s',t:'0.8 ms'}),knob({l:'RATIO',v:.35,c:'comp',lo:'1:1',hi:'20:1',t:'4:1'}),
+   knob({l:'PAN',v:.4,c:'fx1',bi:1,lo:'L',hi:'R',mod:document.getElementById('win').classList.contains('modopen')?['rnd1',.12,'RND 1 ±33 %']:null,t:'L 20'}),knob({l:'PAN',v:.6,c:'fx2',bi:1,lo:'L',hi:'R',t:'R 20'}),knob({l:'THRESHOLD',v:.55,c:'comp',lo:'-30',hi:'0',t:'-14 dB'}),knob({l:'MIX',v:.8,c:'comp',lo:'DRY',hi:'WET',t:'80 %'}),
+   btn('MUTE 1',0),btn('MUTE 2',0),btn('FET',1),btn('COMPRESSOR',1)]}),
+  fx(2,'f2','fx2',1)]}}
+const PAGES={'synth1':()=>synth(1),'cntrl1':()=>cntrl(1),'synth2':()=>synth(2),'cntrl2':()=>cntrl(2),'output':output};
+const NAMES={'synth1':'SYNTH 1','cntrl1':'CNTRL 1','synth2':'SYNTH 2','cntrl2':'CNTRL 2','output':'OUTPUT'};
+function drawer(){const L=(n,c,on,amt)=>`<div class="src ${on?'on':''}" style="--c:${C[c]||c}"><i></i>${n}${amt?`<span class="amt">${amt}</span>`:''}</div>`;
+ document.getElementById('drawer').innerHTML=`<h2><small>MODULATION TARGET</small>Synth 1 Pan</h2><div style="overflow:hidden">
+ <div class="grp">GLOBAL</div>${L('Keyboard Tracking','#9a9ba4')}${L('Mod Wheel','#9a9ba4')}${L('Pressure','#9a9ba4')}${L('Release Velocity','#9a9ba4')}${L('MPE 3rd Dimension','#9a9ba4')}
+ <div class="grp">CONTROLLERS 1 <span>▾</span></div>${L('Filter Env','fenv')}${L('Amp Env','aenv')}${L('Mod Env','menv')}${L('LFO 1','lfo1')}${L('LFO 2','lfo2')}${L('LFO 3','lfo3')}${L('Random 1','rnd1',1,'±33 %')}${L('Random 2','rnd2')}${L('Accent','#a5e844')}
+ <div class="grp">CONTROLLERS 2 <span>▸</span></div><div class="grp">CV IN 1–8 <span>▸</span></div></div>`;
+ document.getElementById('pop').style.setProperty('--c',C.rnd1);
+ document.getElementById('pop').innerHTML=`<div class="ph"><i></i>Random 1<span>→ Synth 1 Pan</span></div>
+ <div class="row">Enabled<div class="sw2 on"></div></div><div class="row">Bi-polar<div class="sw2 on"></div></div>
+ <div class="row">Direct amount<span class="v2">±33.0 %</span></div><div class="sl"><div class="tr"><b style="left:50%;width:16.5%"></b><i style="left:66.5%"></i></div></div>
+ <div class="row">Controller<div class="dd">Mod Wheel<span>▾</span></div></div><div class="row">Controller amount<span class="v2">+100 %</span></div><div class="sl"><div class="tr"><b style="left:50%;width:50%;background:#9a9ba4"></b><i style="left:100%"></i></div></div>
+ <div class="row">Function<div class="dd">Slew<span>▾</span></div></div><div class="row">Function amount<span class="v2">40 %</span></div><div class="sl" style="padding-bottom:14px"><div class="tr"><b style="left:0;width:40%;background:#9a9ba4"></b><i style="left:40%"></i></div></div>`}
+function show(p){const win=document.getElementById('win');let key=p;if(p==='mod'){win.classList.add('modopen');key='output'}else win.classList.remove('modopen');
+ if(!PAGES[key])key='synth1';const d=PAGES[key]();const pg=document.getElementById('page');pg.setAttribute('style',d.grid);pg.innerHTML=d.mods.join('');
+ document.getElementById('tabs').innerHTML=Object.keys(NAMES).map(k=>`<div class="tab ${k==key?'on':''}" onclick="location.hash='${k}'">${NAMES[k]}</div>`).join('');
+ document.getElementById('layer').textContent=key.endsWith('2')?'LAYER 2':key.endsWith('1')?'LAYER 1':'MASTER';
+ if(p==='mod')drawer()}
+document.getElementById('modbtn').onclick=()=>location.hash=location.hash==='#mod'?'output':'mod';
+const notes=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];let kh='';for(let i=0;i<18;i++){const n=notes[i%12];kh+=`<div class="key ${n.includes('#')?'b':'w'} ${i==3?'on':''}">${n}${1+Math.floor(i/12)}</div>`}
+document.getElementById('keys').innerHTML=kh;
+document.getElementById('side').innerHTML=knob({l:'CORRECTION',v:.82,c:'flt',small:1,t:'82 %'})+'<div class="pill">Hold</div><div class="pill">Scale · Dorian</div>';
+window.onhashchange=()=>show(location.hash.slice(1));show(location.hash.slice(1));
+</script></body></html>

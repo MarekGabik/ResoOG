@@ -1,0 +1,8 @@
+build/
+build-*/
+JUCE/
+.DS_Store
+*.user
+.vs/
+*.log
+design/*.png
