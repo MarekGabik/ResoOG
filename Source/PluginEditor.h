@@ -14,10 +14,16 @@ class Stage : public juce::Component
 public:
     void paint (juce::Graphics&) override;
     void setLayerBadge (const juce::String& s) { badge = s; repaint(); }
+    void setMuted (bool m) { if (m != muted) { muted = m; repaint(); } }
+    std::function<void()> onBadgeClick;
+    void mouseDown (const juce::MouseEvent&) override;
+    void mouseMove (const juce::MouseEvent&) override;
     static constexpr int height = 614;
 
 private:
+    juce::Rectangle<float> badgeArea() const;
     juce::String badge;
+    bool muted = false;
     juce::Image texture;
 };
 

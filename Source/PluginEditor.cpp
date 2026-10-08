@@ -55,18 +55,41 @@ void Stage::paint (Graphics& g)
     g.setFont (Fonts::bold (11.5f).italicised().withExtraKerningFactor (0.22f));
     g.drawText ("DUAL-LAYER BASS SYNTHESIZER", x, (int) y + 14, 300, 16, Justification::centredLeft, false);
     x += 300;
+    juce::ignoreUnused (x);
     if (badge.isNotEmpty())
     {
-        auto b = Rectangle<float> ((float) x, y + 12.0f, (float) GlyphArrangement::getStringWidthInt (Fonts::mono (11.0f), badge) + 14.0f, 19.0f);
-        g.setColour (Palette::curve.withAlpha (0.4f));
+        const auto b = badgeArea();
+        const auto col = muted ? Palette::red : Palette::curve;
+        if (muted)
+        {
+            g.setColour (Palette::red.withAlpha (0.15f));
+            g.fillRoundedRectangle (b, 4.0f);
+        }
+        g.setColour (col.withAlpha (muted ? 0.9f : 0.4f));
         g.drawRoundedRectangle (b, 4.0f, 1.0f);
-        g.setColour (Palette::curve);
+        g.setColour (col);
         g.setFont (Fonts::mono (11.0f));
-        g.drawText (badge, b, Justification::centred, false);
+        g.drawText (muted ? badge + "  MUTED - click to unmute" : badge, b, Justification::centred, false);
     }
     g.setColour (Colour (0xff8a8b93));
     g.setFont (Fonts::bold (20.0f).withExtraKerningFactor (0.3f));
     g.drawText ("GAVR", getWidth() - 140, (int) y + 4, 106, 30, Justification::centredRight, false);
+}
+
+Rectangle<float> Stage::badgeArea() const
+{
+    const String t = muted ? badge + "  MUTED - click to unmute" : badge;
+    return { 648.0f, 18.0f + (float) Page::height + 24.0f, (float) GlyphArrangement::getStringWidthInt (Fonts::mono (11.0f), t) + 16.0f, 19.0f };
+}
+
+void Stage::mouseDown (const MouseEvent& e)
+{
+    if (muted && badgeArea().contains (e.position) && onBadgeClick) onBadgeClick();
+}
+
+void Stage::mouseMove (const MouseEvent& e)
+{
+    setMouseCursor (muted && badgeArea().contains (e.position) ? MouseCursor::PointingHandCursor : MouseCursor::NormalCursor);
 }
 
 //==============================================================================
@@ -100,6 +123,10 @@ ResoOGEditor::ResoOGEditor (ResoOGProcessor& p)
     top.onScale = [this] (int s) { setScalePercent (s); };
     top.getScale = [this] { return roundToInt (scale * 100.0f); };
     drawer.onClose = [this] { setModDrawer (false); };
+    stage.onBadgeClick = [this]
+    {
+        if (page < 4) proc.setParamReal (page < 2 ? "sum_mute1" : "sum_mute2", 0.0f);
+    };
 
     settings->addChangeListener (this);
     updateTooltips();
@@ -189,6 +216,7 @@ void ResoOGEditor::timerCallback()
 {
     pages[page]->refreshLive();
     keyboard.refresh();
+    stage.setMuted (page < 4 && proc.getParamReal (page < 2 ? "sum_mute1" : "sum_mute2") > 0.5f);
     if ((++tick % 3) == 0)
     {
         top.refresh();

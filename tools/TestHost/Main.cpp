@@ -537,7 +537,7 @@ static void testEditor()
     if (editor == nullptr) return;
     ed->setSize (ResoOGEditor::logicalWidth, ResoOGEditor::logicalHeight);
 
-    const char* names[] = { "synth1", "cntrl1", "synth2", "cntrl2", "output" };
+    const char* names[] = { "synth1", "cntrl1", "synth2-muted", "cntrl2", "output" };
     double worstMs = 0.0;
     for (int i = 0; i < 5; ++i)
     {
@@ -656,6 +656,94 @@ int main (int argc, char* argv[])
             std::printf ("t %.2f lfo %.3f live %.3f rms %.1f\n", i * 0.05, p->liveSource[Mod::layerSource (0, Mod::Lfo1)].load(),
                          p->liveDest[Mod::destCode ("s1_lpf_cutoff")].load(), rmsDb (b, 0, b.getNumSamples()));
         }
+        return 0;
+    }
+
+    if (argc > 1 && String (argv[1]) == "--audit")
+    {
+        // Changes every parameter on its own and reports the ones that leave the sound unchanged
+        // parameters that only act when another switch is on
+        auto enablers = [] (const String& id) -> std::vector<std::pair<String, float>>
+        {
+            const String L = id.substring (0, 3);
+            if (id.endsWith ("xover")) return { { L + "xover_on", 1.0f } };
+            if (id.contains ("lfo") && id.endsWith ("_div")) return { { id.replace ("_div", "_sync"), 1.0f } };
+            if (id.contains ("rnd") && id.endsWith ("_div")) return { { id.replace ("_div", "_sync"), 1.0f } };
+            if (id.contains ("lfo") && id.endsWith ("_phase")) return { { id.replace ("_phase", "_kbreset"), 1.0f } };
+            if (id == "fx1_sat") return { { "fx1_sattype", 1.0f } };
+            if (id == "fx2_sat") return { { "fx2_sattype", 1.0f } };
+            if (id.startsWith ("dly_")) return { { "dly_mix", 40.0f }, { "dly_sync", id == "dly_time" ? 0.0f : 1.0f } };
+            if (id.startsWith ("cho_")) return { { "cho_mix", 60.0f }, { "cho_sync", id == "cho_div" ? 1.0f : 0.0f } };
+            if (id == "comp_on") return { { "comp_thresh", -25.0f } };
+            if (id.startsWith ("comp_")) return { { "comp_on", 1.0f }, { "comp_thresh", -25.0f } };
+            if (id == "pb_range") return { { "@bend", 1.0f } };
+            if (id == "glide_legato") return { { "s1_osc_glide", 0.3f }, { "@staccato", 1.0f } };
+            return {};
+        };
+        auto renderWith = [&enablers] (const String& id, int mode, const String& enablerFor)
+        {
+            auto p = makeProc();
+            bool bend = false, staccato = false;
+            for (auto& e : enablers (enablerFor))
+            {
+                if (e.first == "@bend") bend = true;
+                else if (e.first == "@staccato") staccato = true;
+                else if (e.first != id) setParam (*p, e.first, e.second);
+            }
+            setParam (*p, "sum_mute2", 0.0f);
+            setParam (*p, "s1_mix_noise", 3.0f);
+            setParam (*p, "s2_mix_noise", 3.0f);
+            for (auto l : { "s1_", "s2_" })
+            {
+                setParam (*p, String (l) + "lfo1_rate", 3.0f);
+                setParam (*p, String (l) + "menv_s", 50.0f);
+            }
+            for (int s = 0; s < 2; ++s)   // make the modulators audible
+            {
+                const String L = s == 0 ? "s1_" : "s2_";
+                p->addModulation (Mod::layerSource (s, Mod::Lfo1), L + "osc_duty", 0.2f);
+                p->addModulation (Mod::layerSource (s, Mod::Lfo2), L + "osc_freq", 0.05f);
+                p->addModulation (Mod::layerSource (s, Mod::Lfo3), L + "spread", 0.3f);
+                p->addModulation (Mod::layerSource (s, Mod::ModEnv), L + "osc_wave", 0.2f);
+                p->addModulation (Mod::layerSource (s, Mod::Random1), L + "noise_color", 0.4f);
+                p->addModulation (Mod::layerSource (s, Mod::Random2), L + "sub_phase", 0.3f);
+            }
+            if (id.isNotEmpty())
+            {
+                auto* rp = p->param (id);
+                const float v = rp->getValue();
+                float nv;
+                if (auto* c = dynamic_cast<AudioParameterChoice*> (rp)) nv = rp->convertTo0to1 ((float) ((c->getIndex() + (mode + 1)) % c->choices.size()));
+                else if (dynamic_cast<AudioParameterBool*> (rp)) nv = v > 0.5f ? 0.0f : 1.0f;
+                else nv = mode == 0 ? (v < 0.5f ? 0.85f : 0.15f) : (v < 0.5f ? 0.6f : 0.35f);
+                rp->setValueNotifyingHost (nv);
+            }
+            std::vector<Ev> ev { { 0.0, MidiMessage::noteOn (1, 36, 1.0f) }, { 0.5, MidiMessage::noteOn (1, 43, 0.6f) },
+                                 { 0.9, MidiMessage::noteOff (1, 43) }, { 1.1, MidiMessage::noteOff (1, 36) } };
+            if (staccato) ev = { { 0.0, MidiMessage::noteOn (1, 36, 1.0f) }, { 0.4, MidiMessage::noteOff (1, 36) },
+                                 { 0.5, MidiMessage::noteOn (1, 43, 0.6f) }, { 1.1, MidiMessage::noteOff (1, 43) } };
+            if (bend) ev.push_back ({ 0.2, MidiMessage::pitchWheel (1, 14000) });
+            return render (*p, 1.6, ev);
+        };
+        auto diffDb = [&] (const AudioBuffer<float>& base, const AudioBuffer<float>& b)
+        {
+            const double ref = rmsDb (base, 0, base.getNumSamples());
+            AudioBuffer<float> d (base);
+            for (int c = 0; c < 2; ++c) d.addFrom (c, 0, b, c, 0, b.getNumSamples(), -1.0f);
+            return rmsDb (d, 0, d.getNumSamples()) - ref;
+        };
+        auto ids = StringArray();
+        for (int l = 0; l < 2; ++l) for (auto& d : Params::layerDefs()) ids.add (Params::layerID (l, d.id));
+        for (auto& d : Params::globalDefs()) ids.add (d.id);
+        int effective = 0;
+        for (auto& id : ids)
+        {
+            const auto base = renderWith ({}, 0, id);
+            const double d = std::max (diffDb (base, renderWith (id, 0, id)), diffDb (base, renderWith (id, 1, id)));
+            if (d < -60.0) std::printf ("NO EFFECT  %-22s %.1f dB\n", id.toRawUTF8(), d);
+            else ++effective;
+        }
+        std::printf ("%d of %d parameters change the sound\n", effective, ids.size());
         return 0;
     }
 
