@@ -41,6 +41,8 @@ public:
 
     // Presets
     void loadFactoryPreset (int index);
+    // Fades the output out, applies the change, clears tails and fades back in (no clicks or old echoes)
+    void changeSilently (std::function<void()> change);
     void resetToDefaults();
     juce::String getPresetName() const { return uiState.getProperty ("presetName", "Init").toString(); }
     void setPresetName (const juce::String& n) { uiState.setProperty ("presetName", n, nullptr); }
@@ -98,6 +100,7 @@ private:
     dsp::DcBlocker dc[2][2];
 
     fx::Saturator saturators[2];
+    std::unique_ptr<juce::dsp::Oversampling<float>> satOversamplers[2];   // saturation runs at 2x
     fx::StereoDelay delay;
     fx::Chorus chorus;
     fx::Compressor compressor;
@@ -124,6 +127,15 @@ private:
     double sr = 48000.0;
     int currentPreset = 0;
     std::atomic<int> pendingLatency { 0 };
+    int computeLatency() const;
+    std::atomic<float> silentTarget { 1.0f };
+    std::atomic<bool> resetRequest { false };
+    float silentGain = 1.0f;
+    struct SilentChange : juce::Timer
+    {
+        std::function<void()> action;
+        void timerCallback() override { stopTimer(); if (auto a = std::move (action)) a(); }
+    } silentChange;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ResoOGProcessor)
 };

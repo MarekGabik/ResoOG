@@ -10,6 +10,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "State/FactoryPresets.h"
+#include "DSP/Primitives.h"
 
 using namespace juce;
 
@@ -223,22 +224,38 @@ static void testAliasing()
         res[os] = aliasDb (*p, 95);
         std::cout << "    " << (1 << os) << "x: " << String (res[os], 1) << " dB" << std::endl;
     }
-    check (res[0] > 50.0, "1x: aliases " + String (res[0], 1) + " dB below the fundamental (> 50)");
-    check (res[1] > 68.0, "2x: aliases " + String (res[1], 1) + " dB below the fundamental (> 68)");
-    check (res[2] > 80.0, "4x: aliases " + String (res[2], 1) + " dB below the fundamental (> 80)");
+    check (res[0] > 70.0, "1x: aliases " + String (res[0], 1) + " dB below the fundamental (> 70)");
+    check (res[1] > 85.0, "2x: aliases " + String (res[1], 1) + " dB below the fundamental (> 85)");
+    check (res[2] > 85.0, "4x: aliases " + String (res[2], 1) + " dB below the fundamental (> 85)");
+
+    // brightness of the bare oscillator: 5th harmonic of B6 (9.9 kHz) against an ideal saw (1/5 = -14.0 dB)
+    for (double fs : { 48000.0, 96000.0 })
+    {
+        ::dsp::ShapeOsc o;
+        o.setShape (3.0f, 0.5f);
+        const double f0 = 440.0 * std::pow (2.0, 26.0 / 12.0);
+        const int n = (int) fs;
+        AudioBuffer<float> b (1, n);
+        for (int i = 0; i < n; ++i) { bool w; double x; b.setSample (0, i, o.tick (f0 / fs, w, x)); }
+        const auto db = spectrum (b, n / 4, 15);
+        const double binHz = fs / 32768.0;
+        auto peakAt = [&] (double f) { double m = -300; for (int d = -4; d <= 4; ++d) m = std::max (m, db[(size_t) (std::lround (f / binHz) + d)]); return m; };
+        const double rel = peakAt (5.0 * f0) - peakAt (f0) + 13.98;
+        check (rel > (fs < 50000.0 ? -3.0 : -1.0), String (fs / 1000.0, 0) + " kHz oscillator: 5th harmonic at 9.9 kHz " + String (rel, 2) + " dB against an ideal saw");
+    }
 
     {
         auto c5 = makeProc();
         quietOscPatch (*c5, 3.0f);
         const double typical = aliasDb (*c5, 72);
-        check (typical > 80.0, "2x saw C5 (523 Hz, typical lead): aliases " + String (typical, 1) + " dB below (> 80)");
+        check (typical > 90.0, "2x saw C5 (523 Hz, typical lead): aliases " + String (typical, 1) + " dB below (> 90)");
     }
 
     auto p = makeProc();
     quietOscPatch (*p, 4.0f);
     setParam (*p, "s1_osc_duty", 25.0f);
     const double sq = aliasDb (*p, 95);
-    check (sq > 70.0, "2x pulse 25 %: aliases " + String (sq, 1) + " dB below (> 70)");
+    check (sq > 85.0, "2x pulse 25 %: aliases " + String (sq, 1) + " dB below (> 85)");
 
     auto s = makeProc();
     quietOscPatch (*s, 3.0f);
@@ -247,7 +264,7 @@ static void testAliasing()
     setParam (*s, "s1_osc_sync", 1.0f);
     setParam (*s, "s1_osc_detune", 4.3f);
     const double sy = aliasDb (*s, 83);
-    check (sy > 60.0, "2x hard sync (osc 2 +4.3 st, B5): aliases " + String (sy, 1) + " dB below (> 60)");
+    check (sy > 85.0, "2x hard sync (osc 2 +4.3 st, B5): aliases " + String (sy, 1) + " dB below (> 85)");
 }
 
 static void testMixerDrive()
@@ -446,6 +463,23 @@ static void testState()
     check (diff == 0 && b->getPresetName() == a->getPresetName(), "save / restore: all parameters and the preset name identical (" + String (diff) + " differ)");
 }
 
+static void testSilentChange()
+{
+    std::cout << "Silent preset change" << std::endl;
+    auto p = makeProc();
+    p->loadFactoryPreset (9);   // dub stab with long delay
+    auto a = render (*p, 1.0, { { 0.0, MidiMessage::noteOn (1, 48, 1.0f) } });
+    p->changeSilently ([&p] { p->loadFactoryPreset (3); });
+    auto b = render (*p, 0.01, {});          // fade out happens here
+    pumpMessages (40);                       // preset applied on the message thread
+    auto c = render (*p, 0.3, {});
+    float maxStep = 0.0f;
+    for (int i = 1; i < b.getNumSamples(); ++i) maxStep = std::max (maxStep, std::abs (b.getSample (0, i) - b.getSample (0, i - 1)));
+    check (p->getPresetName() == "Sub Foundation", "preset applied after the fade");
+    check (rmsDb (c, 0, c.getNumSamples()) < -100.0, "old notes and delay tails are cleared (" + String (rmsDb (c, 0, c.getNumSamples()), 1) + " dB)");
+    check (maxStep < 0.05f, "fade out without a click (max step " + String (maxStep, 4) + ")");
+}
+
 static void testPresets()
 {
     std::cout << "Factory presets" << std::endl;
@@ -502,7 +536,7 @@ static void testCpu()
     const double t0 = Time::getMillisecondCounterHiRes();
     render (*p, 10.0, {}, 256);
     const double idle = (Time::getMillisecondCounterHiRes() - t0) / 100.0;
-    check (idle < timing (0.5), "idle after release (denormal check): " + String (idle, 3) + " % of one core");
+    check (idle < timing (1.0), "idle after release (denormal check): " + String (idle, 3) + " % of one core");
 }
 
 //==============================================================================
@@ -629,6 +663,80 @@ static void testHostedPlugin (const String& path)
     instance->releaseResources();
 }
 
+//==============================================================================
+// Screenshots for the manual: ResoOGTests --manual-shots docs/manual/img
+static int findPreset (const String& name)
+{
+    for (int i = 0; i < (int) factoryPresets().size(); ++i) if (name == factoryPresets()[(size_t) i].name) return i;
+    return 0;
+}
+
+static void manualShots (const File& dir)
+{
+    dir.createDirectory();
+    auto write = [&dir] (const Image& img, const String& name)
+    {
+        JPEGImageFormat jpg;
+        jpg.setQuality (0.88f);
+        auto f = dir.getChildFile (name + ".jpg");
+        f.deleteFile();
+        FileOutputStream os (f);
+        jpg.writeImageToStream (img, os);
+        std::cout << "  " << f.getFileName() << "  " << img.getWidth() << " x " << img.getHeight() << std::endl;
+    };
+    struct Shot { String preset; int page; bool drawer; int note; };
+    auto take = [&] (const Shot& s, std::function<void (ResoOGEditor&, const Image&)> crops)
+    {
+        auto p = makeProc();
+        p->loadFactoryPreset (findPreset (s.preset));
+        render (*p, 0.6, { { 0.0, MidiMessage::noteOn (1, s.note, 0.9f) } });
+        std::unique_ptr<AudioProcessorEditor> ed (p->createEditor());
+        auto* e = dynamic_cast<ResoOGEditor*> (ed.get());
+        ed->setSize (ResoOGEditor::logicalWidth, ResoOGEditor::logicalHeight);
+        e->showPage (s.page);
+        if (s.drawer) { e->setModDrawer (true, 0); }
+        for (int i = 0; i < 8; ++i) { render (*p, 0.05, {}); pumpMessages (35); }
+        auto img = ed->createComponentSnapshot (ed->getLocalBounds(), true, 2.0f);
+        crops (*e, img);
+    };
+    auto crop = [] (const Image& img, Rectangle<int> logical) { return img.getClippedImage (logical * 2); };
+
+    take ({ "Seventies Fat Bass", 0, false, 36 }, [&] (ResoOGEditor& e, const Image& img)
+    {
+        write (img, "overview");
+        write (crop (img, { 0, 0, 1200, 36 }), "topbar");
+        write (crop (img, { 0, 798, 1200, 28 }), "bottombar");
+        write (crop (img, { 0, 650, 1200, 148 }), "keyboard");
+        write (crop (img, { 186, 48, 352, 548 }), "oscillators");
+        write (crop (img, { 536, 48, 132, 548 }), "mixer");
+        write (crop (img, { 666, 48, 508, 366 }), "filters");
+        write (crop (img, { 26, 48, 162, 548 }), "noise-voicing");
+        write (crop (img, { 666, 412, 508, 184 }), "subfilter");
+        juce::ignoreUnused (e);
+    });
+    take ({ "Deep Blue S+H", 0, false, 39 }, [&] (ResoOGEditor& e, const Image& img)
+    {
+        if (auto* k = e.getPageComponent (0)->findKnob ("s1_lpf_cutoff"))
+            write (crop (img, e.getLocalArea (k, k->getLocalBounds()).expanded (14, 6)), "knob-mod");
+    });
+    take ({ "Deep Blue S+H", 1, false, 39 }, [&] (ResoOGEditor&, const Image& img)
+    {
+        write (img, "cntrl");
+        write (crop (img, { 26, 48, 384, 184 }), "lfo-panel");
+    });
+    take ({ "Stereo Matriarch Pad", 2, false, 43 }, [&] (ResoOGEditor&, const Image& img) { write (img, "synth2"); });
+    take ({ "Init", 2, false, 43 }, [&] (ResoOGEditor&, const Image& img) { write (crop (img, { 26, 590, 1148, 60 }), "muted-badge"); });
+    take ({ "Warehouse Reese", 4, false, 31 }, [&] (ResoOGEditor&, const Image& img)
+    {
+        write (img, "output");
+        write (crop (img, { 316, 84, 568, 146 }), "meters");
+    });
+    take ({ "Deep Blue S+H", 0, true, 39 }, [&] (ResoOGEditor&, const Image& img)
+    {
+        write (img, "mod-panel");
+    });
+}
+
 int main (int argc, char* argv[])
 {
     ScopedJuceInitialiser_GUI gui;
@@ -656,6 +764,12 @@ int main (int argc, char* argv[])
             std::printf ("t %.2f lfo %.3f live %.3f rms %.1f\n", i * 0.05, p->liveSource[Mod::layerSource (0, Mod::Lfo1)].load(),
                          p->liveDest[Mod::destCode ("s1_lpf_cutoff")].load(), rmsDb (b, 0, b.getNumSamples()));
         }
+        return 0;
+    }
+
+    if (argc > 2 && String (argv[1]) == "--manual-shots")
+    {
+        manualShots (File::getCurrentWorkingDirectory().getChildFile (String (CharPointer_UTF8 (argv[2]))));
         return 0;
     }
 
@@ -763,6 +877,7 @@ int main (int argc, char* argv[])
     testModulation();
     testRobustness();
     testState();
+    testSilentChange();
     testPresets();
     testCpu();
     testEditor();

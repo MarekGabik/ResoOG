@@ -189,8 +189,19 @@ void TopBar::mouseDown (const MouseEvent& e)
 void TopBar::stepPreset (int dir)
 {
     const int n = (int) factoryPresets().size();
-    proc.loadFactoryPreset (((proc.getCurrentProgram() + dir) % n + n) % n);
-    refresh();
+    const int next = ((proc.getCurrentProgram() + dir) % n + n) % n;
+    loadFactory (next);
+}
+
+void TopBar::loadFactory (int index)
+{
+    if (settings.getBool (GlobalSettings::silentPresets))
+    {
+        auto& pr = proc;
+        pr.changeSilently ([&pr, index] { pr.loadFactoryPreset (index); });
+    }
+    else
+        proc.loadFactoryPreset (index);
 }
 
 void TopBar::showPresetMenu()
@@ -226,10 +237,10 @@ void TopBar::showPresetMenu()
                      [sp = SafePointer<TopBar> (this)] (int r)
     {
         if (sp == nullptr || r == 0) return;
-        if (r >= 100) sp->proc.loadFactoryPreset (r - 100);
+        if (r >= 100) sp->loadFactory (r - 100);
         else if (r == 1) sp->savePreset();
         else if (r == 2) sp->loadPreset();
-        else if (r == 3) sp->proc.loadFactoryPreset (0);
+        else if (r == 3) sp->loadFactory (0);
         sp->refresh();
     });
 }
@@ -265,12 +276,16 @@ void TopBar::loadPreset()
     {
         if (sp == nullptr) return;
         auto f = fc.getResult();
-        MemoryBlock mb;
-        if (f.existsAsFile() && f.loadFileAsData (mb))
+        auto mb = std::make_shared<MemoryBlock>();
+        if (f.existsAsFile() && f.loadFileAsData (*mb))
         {
-            sp->proc.setStateInformation (mb.getData(), (int) mb.getSize());
-            sp->proc.setPresetName (f.getFileNameWithoutExtension());
-            sp->refresh();
+            auto& pr = sp->proc;
+            auto apply = [&pr, mb, name = f.getFileNameWithoutExtension()]
+            {
+                pr.setStateInformation (mb->getData(), (int) mb->getSize());
+                pr.setPresetName (name);
+            };
+            if (sp->settings.getBool (GlobalSettings::silentPresets)) pr.changeSilently (apply); else apply();
         }
     });
 }
@@ -279,6 +294,7 @@ void TopBar::showHelpMenu()
 {
     PopupMenu m;
     m.addItem (1, "Show tooltips", true, settings.getBool (GlobalSettings::tooltips));
+    m.addItem (3, "Silent preset changes (fade out, clear echoes, fade in)", true, settings.getBool (GlobalSettings::silentPresets));
     PopupMenu size;
     const int cur = getScale ? getScale() : 100;
     for (int s : { 70, 80, 90, 100, 115, 130, 150 })
@@ -295,6 +311,7 @@ void TopBar::showHelpMenu()
     {
         if (sp == nullptr || r == 0) return;
         if (r == 1) sp->settings.setBool (GlobalSettings::tooltips, ! sp->settings.getBool (GlobalSettings::tooltips));
+        else if (r == 3) sp->settings.setBool (GlobalSettings::silentPresets, ! sp->settings.getBool (GlobalSettings::silentPresets));
         else if (r >= 100 && sp->onScale) sp->onScale (r - 100);
     });
 }

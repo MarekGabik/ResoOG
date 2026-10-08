@@ -11,6 +11,7 @@ public:
 
     static inline const juce::String tooltips             { "tooltips" };
     static inline const juce::String scaling              { "scaling" };      // percent
+    static inline const juce::String silentPresets        { "silentPresets" };
 
     bool getBool (const juce::String& key, bool fallback = true) const;
     void setBool (const juce::String& key, bool value);

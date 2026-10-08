@@ -40,6 +40,7 @@ ResoOGProcessor::ResoOGProcessor()
 
 ResoOGProcessor::~ResoOGProcessor()
 {
+    silentChange.stopTimer();
     cancelPendingUpdate();
 }
 
@@ -63,7 +64,9 @@ void ResoOGProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
         }
         dc[l][0].setup (sr); dc[l][1].setup (sr);
         dc[l][0].reset(); dc[l][1].reset();
-        saturators[l].prepare (sr);
+        saturators[l].prepare (sr * 2.0);
+        satOversamplers[l] = std::make_unique<juce::dsp::Oversampling<float>> (2, 1, juce::dsp::Oversampling<float>::filterHalfBandPolyphaseIIR, true, false);
+        satOversamplers[l]->initProcessing ((size_t) chunkSize);
     }
 
     osIndex = jlimit (0, 2, (int) globalRaw[GP::oversampling]->load());
@@ -79,7 +82,7 @@ void ResoOGProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     keyboardState.reset();
     numHeld = 0;
     assigned[0] = assigned[1] = -1;
-    pendingLatency = osIndex == 0 ? 0 : (int) std::lround (oversamplers[0][osIndex - 1]->getLatencyInSamples());
+    pendingLatency = computeLatency();
     setLatencySamples (pendingLatency);
 }
 
@@ -92,8 +95,28 @@ void ResoOGProcessor::setOversampling (int index)
         layers[l].setSampleRate (osRate);
         for (auto& o : oversamplers[l]) if (o) o->reset();
     }
-    pendingLatency = osIndex == 0 ? 0 : (int) std::lround (oversamplers[0][osIndex - 1]->getLatencyInSamples());
+    pendingLatency = computeLatency();
     triggerAsyncUpdate();
+}
+
+int ResoOGProcessor::computeLatency() const
+{
+    double l = osIndex == 0 ? 0.0 : (double) oversamplers[0][osIndex - 1]->getLatencyInSamples();
+    if (satOversamplers[0]) l += (double) satOversamplers[0]->getLatencyInSamples();
+    return (int) std::lround (l);
+}
+
+void ResoOGProcessor::changeSilently (std::function<void()> change)
+{
+    silentTarget = 0.0f;
+    silentChange.stopTimer();
+    silentChange.action = [this, change]
+    {
+        change();
+        resetRequest = true;
+        silentTarget = 1.0f;
+    };
+    silentChange.startTimer (isNonRealtime() ? 1 : 25);
 }
 
 void ResoOGProcessor::handleAsyncUpdate()
@@ -240,6 +263,23 @@ void ResoOGProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midi
         return;
 
     keyboardState.processNextMidiBuffer (midi, 0, n, true);
+
+    if (resetRequest.exchange (false))
+    {
+        for (auto& l : layers) l.reset();
+        for (int l = 0; l < 2; ++l)
+        {
+            dc[l][0].reset(); dc[l][1].reset();
+            saturators[l].reset();
+            if (satOversamplers[l]) satOversamplers[l]->reset();
+            for (auto& o : oversamplers[l]) if (o) o->reset();
+        }
+        delay.reset();
+        chorus.reset();
+        compressor.reset();
+        numHeld = 0;
+        assigned[0] = assigned[1] = -1;
+    }
 
     // on-screen wheels and hold
     const float ub = uiPitchBend.load(), uw = uiModWheel.load();
@@ -414,17 +454,25 @@ void ResoOGProcessor::processChunk (AudioBuffer<float>& out, int start, int len,
     {
         float* l1 = layerBuf[0].getWritePointer (0); float* r1 = layerBuf[0].getWritePointer (1);
         float* l2 = layerBuf[1].getWritePointer (0); float* r2 = layerBuf[1].getWritePointer (1);
-        saturators[0].process (l1, r1, len, (int) curG[GP::fx1_sattype], curG[GP::fx1_sat]);
+        auto saturate = [this, len] (int l, float* L, float* R, int type, float amount)
+        {
+            float* ch[2] = { L, R };
+            juce::dsp::AudioBlock<float> blk (ch, 2, (size_t) len);
+            auto up = satOversamplers[l]->processSamplesUp (blk);
+            saturators[l].process (up.getChannelPointer (0), up.getChannelPointer (1), (int) up.getNumSamples(), type, amount);
+            satOversamplers[l]->processSamplesDown (blk);
+        };
+        if (! muted[0]) saturate (0, l1, r1, (int) curG[GP::fx1_sattype], curG[GP::fx1_sat]);
         const double dTime = curG[GP::dly_sync] > 0.5f ? Params::divisionInBeats ((int) curG[GP::dly_div]) * 60.0 / t.bpm : (double) curG[GP::dly_time];
         delay.process (l1, r1, len, (float) std::min (2.4, dTime), curG[GP::dly_fb], curG[GP::dly_hpf], curG[GP::dly_mix] / 100.0f, curG[GP::dly_stereo] > 0.5f);
 
-        saturators[1].process (l2, r2, len, (int) curG[GP::fx2_sattype], curG[GP::fx2_sat]);
+        if (! muted[1]) saturate (1, l2, r2, (int) curG[GP::fx2_sattype], curG[GP::fx2_sat]);
         const bool choSync = curG[GP::cho_sync] > 0.5f;
         const double beats = Params::divisionInBeats ((int) curG[GP::cho_div]);
         const double choHz = choSync ? t.bpm / 60.0 / beats : (double) curG[GP::cho_rate];
         double hostPhase = t.ppq / beats;
         hostPhase -= std::floor (hostPhase);
-        chorus.process (l2, r2, len, (float) choHz, curG[GP::cho_depth], curG[GP::cho_hpf], curG[GP::cho_mix] / 100.0f,
+        if (! muted[1]) chorus.process (l2, r2, len, (float) choHz, curG[GP::cho_depth], curG[GP::cho_hpf], curG[GP::cho_mix] / 100.0f,
                         curG[GP::cho_expand] > 0.5f, choSync && t.playing, hostPhase);
 
         // 6. summing
@@ -449,10 +497,15 @@ void ResoOGProcessor::processChunk (AudioBuffer<float>& out, int start, int len,
     meterGr = compressor.getGainReductionDb();
 
     const float master = curG[GP::master_vol] <= -59.9f ? 0.0f : Decibels::decibelsToGain (curG[GP::master_vol]);
+    const float silentTargetNow = silentTarget.load (std::memory_order_relaxed);
+    const float silentStep = (float) (1.0 / (0.006 * sr));
     for (int i = 0; i < len; ++i)
     {
-        outL[i] = jlimit (-4.0f, 4.0f, outL[i] * master);
-        outR[i] = jlimit (-4.0f, 4.0f, outR[i] * master);
+        if (silentGain < silentTargetNow) silentGain = std::min (silentTargetNow, silentGain + silentStep);
+        else if (silentGain > silentTargetNow) silentGain = std::max (silentTargetNow, silentGain - silentStep);
+        const float g = master * silentGain;
+        outL[i] = jlimit (-4.0f, 4.0f, outL[i] * g);
+        outR[i] = jlimit (-4.0f, 4.0f, outR[i] * g);
     }
     outMeter.process (outL, outR, len);
 }

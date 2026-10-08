@@ -151,6 +151,15 @@ void SynthLayer::render (const float* p, float* L, float* R, int n, float bend)
     tg[rSpread] = p[LP::spread] / 10.0f;
     tg[rXover] = p[LP::xover];
 
+    // CP-3 style drive: channels above 7 push the summing stage into saturation (ramped, no zipper)
+    float overdrive = 0.0f;
+    for (int ch : { LP::mix_osc1, LP::mix_osc2, LP::mix_noise })
+        overdrive += std::max (0.0f, p[ch] - 7.0f) / 3.0f;
+    tg[rPre] = 1.0f + 1.5f * overdrive;
+    tg[rPost] = 1.0f / std::pow (tg[rPre], 0.6f);
+    tg[rSubPre] = 1.0f + 1.5f * std::max (0.0f, p[LP::mix_sub] - 7.0f) / 3.0f;
+    tg[rSubPost] = 1.0f / std::pow (tg[rSubPre], 0.6f);
+
     if (! rampsPrimed)
     {
         for (int i = 0; i < numRamps; ++i) ramps[i].reset (tg[i]);
@@ -179,15 +188,6 @@ void SynthLayer::render (const float* p, float* L, float* R, int n, float bend)
     const float accentEg = accented ? 1.5f : 1.0f;
     const float accentAmp = accentOn ? (accented ? 1.0f : 0.8f) : 1.0f;
     sub.setShape (subWave == 0 ? 0.0f : (subWave == 1 ? 3.0f : 4.0f), 0.5f);
-
-    // CP-3 style drive: channels above 7 push the summing stage into saturation
-    float overdrive = 0.0f;
-    for (int ch : { LP::mix_osc1, LP::mix_osc2, LP::mix_noise })
-        overdrive += std::max (0.0f, p[ch] - 7.0f) / 3.0f;
-    const float preGain = 1.0f + 1.5f * overdrive;
-    const float postGain = 1.0f / std::pow (preGain, 0.6f);
-    const float subPre = 1.0f + 1.5f * std::max (0.0f, p[LP::mix_sub] - 7.0f) / 3.0f;
-    const float subPost = 1.0f / std::pow (subPre, 0.6f);
 
     const float osc2Phase = p[LP::osc2_phase] / 360.0f;
     const float subPhase = p[LP::sub_phase] / 360.0f;
@@ -258,6 +258,7 @@ void SynthLayer::render (const float* p, float* L, float* R, int n, float bend)
             busL = a1L + a2L + noiseSig;
             busR = a1R + a2R + noiseSig;
         }
+        const float preGain = ramps[rPre].next(), postGain = ramps[rPost].next();
         busL *= preGain;
         busR *= preGain;
         peak = std::max (peak, std::max (std::abs (busL), std::abs (busR)));
@@ -293,7 +294,7 @@ void SynthLayer::render (const float* p, float* L, float* R, int n, float bend)
         // sub path
         const float subHz = clampf (std::exp2 (ramps[rSub].next() + ramps[rSubEg].next() * fe), 8.0f, nyq);
         const float sr = ramps[rSubR].next();
-        const auto sf = subFilter.process (mixerSat (so * gs * subPre) * subPost, std::tan (piOverFs * subHz), sr);
+        const auto sf = subFilter.process (mixerSat (so * gs * ramps[rSubPre].next()) * ramps[rSubPost].next(), std::tan (piOverFs * subHz), sr);
         float subOut = subMode == 2 ? sf.lp : (subMode == 1 ? sf.bp * 2.0f * sr : sf.hp);
 
         // crossover: low pass on the sub (left) or high pass on the oscillators (right); lows stay mono

@@ -50,7 +50,7 @@ Component* Page::rateKnob (const String& rateID, const String& divID, const Stri
 void Page::refreshLive()
 {
     for (auto* k : knobs)
-        if (k->isShowing()) k->refreshLive();
+        if (k->isVisible()) k->refreshLive();
     for (auto& lp : livePanels)
     {
         float v = proc.liveSource[lp.source].load();

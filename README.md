@@ -5,9 +5,13 @@ Koncept a rozložení panelů vychází z Moog Mariana (dvě vrstvy SYNTH 1/2, o
 výstupní stránka OUTPUT). Kód, grafika a název jsou vlastní, vzhled patří do rodiny pluginů Gavr
 (ResoQBand, ResoTamer): klidné tmavé prostředí, barva jen tam, kde nese informaci.
 
-Specifikace a plán vývoje: [docs/SPECIFIKACE.md](docs/SPECIFIKACE.md) · vzhledový mockup: [design/resoog-mockup.html](design/resoog-mockup.html)
+Uživatelská příručka: [docs/manual/index.html](docs/manual/index.html) (online: https://claude.ai/artifact/Y2hip5oiQ1JrrBVSLYxFZC) · Specifikace a plán vývoje: [docs/SPECIFIKACE.md](docs/SPECIFIKACE.md) · vzhledový mockup: [design/resoog-mockup.html](design/resoog-mockup.html)
 
-## Stav (verze 0.1.0 – první hratelná verze)
+## Stav (verze 0.2.0)
+
+Novinky 0.2: oscilátory s BLEP/BLAMP 4. řádu (aliasy −93 dB při 2×, −78 dB i bez oversamplingu), saturace 2× převzorkovaná,
+tiché přepínání presetů (fade, smazání ozvěn), plynulý drive mixeru, upozornění na ztlumenou vrstvu, 25 nových presetů
+inspirovaných Moogy (celkem 39), uživatelská příručka CS/EN se screenshoty, `--audit` (každý parametr mění zvuk).
 
 Hotovo a otestováno:
 
@@ -32,22 +36,23 @@ Hotovo a otestováno:
   na knob = nová modulace, pravé tlačítko na knobu = menu modulací, dvojklik = napsat hodnotu (i `2.5k`, `A3`, `120 ms`),
   Cmd-klik = výchozí hodnota, Shift = jemně, panel Mod (souhrn a editor všech modulací), klávesnice na obrazovce
   (velocity podle místa úhozu, PB/MW, oktávy, Hold), undo/redo, A/B, presety, velikost okna 70–150 %
-- **14 továrních presetů** v 9 kategoriích (Bass, Sub, Acid, Lead, Pluck, Dub, Techno, Duo, Ambient), uložení/načtení vlastních (`.resoog`)
+- **39 továrních presetů** v 11 kategoriích (Basics, Bass, Sub, Classic, Acid, Lead, Pluck, Techno, Dub, Duo, Ambient), uložení/načtení vlastních (`.resoog`)
 - 401 automatizovatelných parametrů se stabilními ID
 
 Naměřeno (`ResoOGTests`, MacBook M-series, 48 kHz):
 
 | Vlastnost | Hodnota |
 |---|---|
-| Aliasing saw B6 (1976 Hz) pod 10 kHz | 1×: −53 dB, 2×: −70 dB, 4×: −84 dB |
-| Aliasing saw C5 (523 Hz), 2× | −81 dB |
-| Hard sync 2× / pulse 25 % 2× | −78 dB / −71 dB |
+| Aliasing saw B6 (1976 Hz) pod 10 kHz | 1×: −78 dB, 2×: −93 dB, 4×: −93 dB |
+| Aliasing saw C5 (523 Hz), 2× | −97 dB |
+| Hard sync 2× / pulse 25 % 2× | −94 dB / −93 dB |
+| Výšky oscilátoru (5. harmonická B6), 2× | −0,9 dB proti ideálu |
 | Ladder samooscilace 220 / 1000 / 3000 Hz | odchylka < 1 cent |
 | Mixer úroveň 7 / 10 (3. harmonická) | −47 dB (čistý) / −19 dB (drive) |
-| CPU 1 vrstva 2× / 2 vrstvy + efekty 2× / 2 vrstvy 4× | ~1,5 % / ~3,1 % / ~5,9 % jednoho jádra |
+| CPU 1 vrstva 2× / 2 vrstvy + efekty 2× / 2 vrstvy 4× | ~1,8 % / ~3,4 % / ~6 % jednoho jádra |
 
 Plánováno (viz roadmapa ve specifikaci): Virtual CV mezi instancemi (ID je vidět vpravo nahoře), MPE per-note,
-scale lock a ribbon pitch correction na klávesnici, manuál CS/EN, další presety.
+scale lock a ribbon pitch correction na klávesnici.
 
 ## Build (macOS)
 
@@ -68,7 +73,8 @@ Testy (zvuk, UI snímky do `snapshots/`, hostování nainstalovaného VST3):
 build-universal/ResoOGTests_artefacts/Release/ResoOGTests ~/Library/Audio/Plug-Ins/VST3/ResoOG.vst3
 ```
 
-Měření výkonu: `ResoOGTests --bench`.
+Měření výkonu: `ResoOGTests --bench`. Kontrola, že každý parametr mění zvuk: `ResoOGTests --audit`.
+Screenshoty a manuál: `ResoOGTests --manual-shots docs/manual/img` a `python3 tools/manual/build_manual.py`.
 
 ## Windows
 

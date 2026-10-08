@@ -1,0 +1,525 @@
+<title>ResoOG Příručka</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: sticky table of contents on the left, one reading column; screenshots as framed figures, settings as "recipe" cards */
+:root {
+  --bg: #f4f4f1;
+  --surface: #ffffff;
+  --surface-2: #ecebe4;
+  --fg: #1b1a17;
+  --fg-dim: #5f5d55;
+  --line: #d9d7cd;
+  --accent: #8a6100;        /* the yellow result curve, darkened for a light page */
+  --accent-soft: #f6ebc9;
+  --band: #0e7f93;          /* cyan band colour */
+  --band-soft: #d6eef2;
+  --cut: #c43d63;
+  --cut-soft: #f7dde5;
+  --shot-edge: #1d1e22;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111215; --surface: #18191d; --surface-2: #212228; --fg: #e6e6ea; --fg-dim: #9a9ba4;
+    --line: #2d2e35; --accent: #f4c95d; --accent-soft: #3a3020; --band: #38d6f0; --band-soft: #15323a;
+    --cut: #ff7d9b; --cut-soft: #3e2230; --shot-edge: #2d2e35;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111215; --surface: #18191d; --surface-2: #212228; --fg: #e6e6ea; --fg-dim: #9a9ba4;
+  --line: #2d2e35; --accent: #f4c95d; --accent-soft: #3a3020; --band: #38d6f0; --band-soft: #15323a;
+  --cut: #ff7d9b; --cut-soft: #3e2230; --shot-edge: #2d2e35;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.6;
+  padding-inline: 20px; padding-block: 0 64px;
+}
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.page { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 48px; }
+@media (max-width: 900px) { .page { grid-template-columns: minmax(0, 1fr); gap: 0; } nav.toc { display: none; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; padding-top: 40px; font-size: 14.5px; max-height: calc(100vh - 48px); overflow-y: auto; }
+nav.toc p { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-dim); margin: 0 0 10px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+nav.toc a { display: block; padding: 4px 10px; border-radius: 6px; color: var(--fg-dim); text-decoration: none; }
+nav.toc a:hover { background: var(--surface-2); color: var(--fg); }
+nav.toc .genre a { color: var(--fg); font-weight: 600; }
+
+main { min-width: 0; }
+.doc { max-width: 820px; }
+
+header.hero { padding-block: 44px 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin: 0 0 12px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(2.2rem, 5vw, 3.4rem); line-height: 1.05; margin: 0 0 16px; text-wrap: balance; letter-spacing: -.01em; }
+h1 .q { color: var(--accent); }
+.lede { font-size: 1.15rem; color: var(--fg-dim); margin: 0; max-width: 62ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.meta span { font-family: var(--font-mono); font-size: 12.5px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--fg-dim); background: var(--surface); }
+
+h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; line-height: 1.15; margin: 64px 0 14px; text-wrap: balance; scroll-margin-top: 24px; }
+h2 .num { font-family: var(--font-mono); font-size: .9rem; font-weight: 400; color: var(--fg-dim); margin-right: 10px; vertical-align: .35em; }
+h3 { font-family: var(--font-display); font-weight: 500; font-size: 1.3rem; margin: 36px 0 8px; text-wrap: balance; scroll-margin-top: 24px; }
+p, li { max-width: 68ch; }
+ul, ol { padding-left: 1.3em; }
+li + li { margin-top: 4px; }
+code, kbd { font-family: var(--font-mono); font-size: .86em; }
+kbd { padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; background: var(--surface); white-space: nowrap; }
+.dim { color: var(--fg-dim); }
+
+figure { margin: 22px 0 26px; }
+figure.shot img { display: block; width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--shot-edge); background: #0b0c0f; }
+figure.strip img { display: block; width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--shot-edge); background: #0b0c0f; }
+figure.narrow { max-width: 520px; }
+figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 14px; color: var(--fg-dim); margin-top: 8px; max-width: 72ch; }
+
+.genre-head { margin-top: 72px; padding: 22px 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.genre-head h2 { margin: 0 0 6px; }
+.genre-head p { margin: 0; color: var(--fg-dim); }
+.genre-head .tempo { font-family: var(--font-mono); font-size: 12.5px; color: var(--accent); margin-bottom: 8px; letter-spacing: .04em; }
+
+.recipe { margin: 18px 0 26px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; }
+.recipe-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; padding: 14px 18px 10px; }
+.recipe-head h4 { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: 1.12rem; }
+.recipe-head .where { font-family: var(--font-mono); font-size: 12px; color: var(--fg-dim); }
+.settings { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 18px 12px; }
+.chip { font-family: var(--font-mono); font-size: 12.5px; padding: 3px 9px; border-radius: 6px; background: var(--surface-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.chip b { font-weight: 600; color: var(--accent); }
+.chip.band { background: var(--band-soft); }
+.chip.dyn { background: var(--cut-soft); }
+.recipe-body { padding: 12px 18px 14px; border-top: 1px solid var(--line); font-size: 16px; }
+.recipe-body p { margin: 0 0 8px; }
+.recipe-body p:last-child { margin-bottom: 0; }
+
+.note { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 20px 0; }
+.note.warn { border-color: var(--cut); background: var(--cut-soft); }
+.note.info { border-color: var(--band); background: var(--band-soft); }
+.note p { margin: 0; }
+.note strong { display: block; margin-bottom: 2px; }
+
+.table-wrap { overflow-x: auto; margin: 16px 0 24px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-dim); font-weight: 600; background: var(--surface-2); }
+td.num, th.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td:first-child { font-weight: 600; }
+tr.cat td { background: var(--surface-2); font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-dim); font-weight: 600; }
+
+.steps { counter-reset: s; list-style: none; padding: 0; display: grid; gap: 10px; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; align-items: start; max-width: none; }
+.steps li::before { content: counter(s); font-family: var(--font-mono); font-weight: 600; font-size: 14px; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--bg); margin-top: 1px; }
+
+.chain { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 12px 0 18px; font-family: var(--font-mono); font-size: 13px; }
+.chain span { padding: 5px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+.chain span.me { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.chain i { font-style: normal; color: var(--fg-dim); }
+
+.legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 20px; margin: 10px 0 20px; padding: 0; list-style: none; font-size: 15px; }
+.legend li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; align-items: baseline; max-width: none; margin: 0; }
+.legend b { font-family: var(--font-mono); font-size: 12px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--bg); }
+
+.lang { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-family: var(--font-mono); font-size: 12px; }
+.lang a, .lang span { padding: 3px 10px; border-radius: 999px; text-decoration: none; color: var(--fg-dim); }
+.lang span { background: var(--accent); color: var(--bg); font-weight: 600; }
+.hero-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.hero-top .eyebrow { margin: 0; }
+nav.toc .lang { margin-bottom: 18px; }
+footer { margin-top: 72px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 14px; color: var(--fg-dim); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<div class="page">
+  <nav class="toc" aria-label="Obsah">
+    <div class="lang" aria-label="Jazyk"><span aria-current="page">CS</span><a href="en.html" hreflang="en" lang="en">EN</a></div>
+    <p>Obsah</p>
+    <ol>
+      <li><a href="#princip">Jak funguje</a></li>
+      <li><a href="#start">Rychlý start</a></li>
+      <li><a href="#synth">SYNTH</a></li>
+      <li><a href="#mixer">Mixer a drive</a></li>
+      <li><a href="#filtry">Filtry</a></li>
+      <li><a href="#cntrl">CNTRL</a></li>
+      <li><a href="#modulace">Modulace</a></li>
+      <li><a href="#output">OUTPUT</a></li>
+      <li><a href="#hrani">Hraní a lišty</a></li>
+      <li class="genre"><a href="#bass">Techno bass</a></li>
+      <li class="genre"><a href="#dub">Dub techno</a></li>
+      <li class="genre"><a href="#acid">Acid</a></li>
+      <li class="genre"><a href="#ambient">Ambient</a></li>
+      <li class="genre"><a href="#classic">Klasika Moog</a></li>
+      <li><a href="#presety">Tovární presety</a></li>
+      <li><a href="#mereni">Měření</a></li>
+      <li><a href="#potize">Řešení potíží</a></li>
+      <li><a href="#klavesy">Myš a klávesy</a></li>
+      <li><a href="#instalace">Instalace a soubory</a></li>
+    </ol>
+  </nav>
+
+  <main>
+  <div class="doc">
+    <header class="hero">
+      <div class="hero-top">
+        <p class="eyebrow">Uživatelská příručka · verze 0.2.0</p>
+        <div class="lang" aria-label="Jazyk"><span aria-current="page">CS</span><a href="en.html" hreflang="en" lang="en">EN</a></div>
+      </div>
+      <h1>Reso<span class="q">OG</span></h1>
+      <p class="lede">Dvouvrstvý basový syntezátor. Dva kompletní monofonní synthy na sobě, každý s dual oscilátorem, subem, šumem, přebuzeným mixerem a ladder filtrem, k tomu modulační matice a výstupní efekty. Koncept podle Moog Mariana, zvuk a ovládání v duchu pluginů Gavr.</p>
+      <div class="meta">
+        <span>VST3 · Windows / macOS</span><span>AU · macOS</span><span>instrument · mono / duophonic</span><span>Ableton Live 11 / 12</span><span>2 vrstvy · 24 modulací · 39 presetů</span>
+      </div>
+    </header>
+
+    <figure class="shot"><img src="img/overview.jpg" alt="Stránka SYNTH 1 s presetem Seventies Fat Bass" width="2400" height="1652"><figcaption>Stránka <strong>SYNTH 1</strong> s presetem <strong>Seventies Fat Bass</strong>. Nahoře záložky stránek a presety, dole klávesnice. Barvy označují zdroj: oscilátory azurově, sub fialově, šum růžově, mixer oranžově, filtry zlatě.</figcaption></figure>
+
+    <h2 id="princip"><span class="num">01</span>Jak funguje</h2>
+    <p>ResoOG jsou dva stejné syntezátory (vrstvy) poskládané na sebe. Každá vrstva má vlastní zdroje, mixer, filtry a obálky. Stránky se dělí takto:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Stránka</th><th>Co obsahuje</th></tr></thead>
+      <tbody>
+        <tr><td>SYNTH 1 / SYNTH 2</td><td>Zvuk vrstvy: noise, dual oscillator, sub osc, mixer, low pass, high pass, sub filter, crossover, voicing.</td></tr>
+        <tr><td>CNTRL 1 / CNTRL 2</td><td>Modulátory vrstvy: 3 LFO, obálka filtru, obálka zesilovače, mod obálka (DAHDSR), 2 random generátory.</td></tr>
+        <tr><td>OUTPUT</td><td>Saturace a efekt každé vrstvy (delay na 1, chorus na 2), summing, FET kompresor, hlasitost a měřiče.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="chain"><span>dual osc + sub + noise</span><i>→</i><span>mixer (drive)</span><i>→</i><span>LPF + HPF · sub filter</span><i>→</i><span>crossover</span><i>→</i><span>amp</span><i>→</i><span>saturace · delay / chorus</span><i>→</i><span class="me">summing → kompresor</span></div>
+    <p>Všechno se zvukem vrstvy běží převzorkovaně (výchozí 2×), takže oscilátory, sync i rezonance zůstávají čisté i ve vysokých polohách. Modulace se počítají každých 32 vzorků a hodnoty se mezi tím plynule interpolují, takže nic necvaká.</p>
+    <div class="note info"><p><strong>Layered nebo Duophonic</strong>Vlevo v dolní liště: <em>Layered</em> = obě vrstvy hrají stejnou notu (tlustá basa). <em>Duophonic</em> = synth 1 hraje nejnižší drženou notu, synth 2 nejvyšší (basa + lead jednou rukou).</p></div>
+
+    <h2 id="start"><span class="num">02</span>Rychlý start</h2>
+    <ol class="steps">
+      <li><div>Vlož ResoOG na MIDI stopu v Abletonu (Plug-Ins → Gavr → ResoOG).</div></li>
+      <li><div>Klikni na název presetu nahoře a vyber kategorii, nebo procházej šipkami ◀ ▶. U presetu se v menu ukáže popis, k čemu je a co otočit nejdřív.</div></li>
+      <li><div>Hraj na MIDI klávesy nebo na klávesnici dole. Čím níž klikneš do klávesy, tím silnější úhoz.</div></li>
+      <li><div>Na stránce <strong>SYNTH 1</strong> otoč <strong>CUTOFF</strong>, <strong>RESONANCE</strong> a <strong>EG AMOUNT</strong> v low pass filtru. To je jádro zvuku.</div></li>
+      <li><div>Chceš pohyb? Na stránce <strong>CNTRL 1</strong> chyť šipku v hlavičce LFO a pusť ji na knob. Vznikne modulace.</div></li>
+    </ol>
+    <div class="note warn"><p><strong>Synth 2 je ve výchozím stavu ztlumený</strong>Aby výchozí zvuk byla jedna čistá vrstva, má Init preset zapnuté MUTE 2. Na stránkách SYNTH 2 a CNTRL 2 to hlásí červený štítek dole; klikni na něj a vrstva se zapne.</p></div>
+    <figure class="strip">
+      <img src="img/muted-badge.jpg" alt="Štítek ztlumené vrstvy" width="2296" height="120" loading="lazy">
+    </figure>
+
+    <h2 id="synth"><span class="num">03</span>Stránka SYNTH</h2>
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:18px;align-items:start">
+      <figure class="shot"><img src="img/noise-voicing.jpg" alt="Noise a Voicing" width="324" height="1096" loading="lazy"><figcaption>NOISE a VOICING</figcaption></figure>
+      <figure class="shot"><img src="img/oscillators.jpg" alt="Dual oscillator a sub osc" width="704" height="1096" loading="lazy"><figcaption>DUAL OSCILLATOR · SUB OSC</figcaption></figure>
+    </div>
+    <h3>Dual oscillator</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Ovladač</th><th>Co dělá</th></tr></thead>
+      <tbody>
+        <tr><td>FREQUENCY</td><td>Ladění obou oscilátorů ±7 půltónů.</td></tr>
+        <tr><td>OSC 2 DETUNE</td><td>Rozladění oscilátoru 2 ±7 půltónů. Kolem středu je jemné: +0,05 st dá pomalé zázněje, +7 kvintu.</td></tr>
+        <tr><td>GLIDE</td><td>Klouzání výšky mezi notami (0–10 s). V dolní liště přepneš „Glide: always / legato“.</td></tr>
+        <tr><td>OSC 2 OCTAVE</td><td>+0 / +1 / +2 oktávy oscilátoru 2.</td></tr>
+        <tr><td>HARD SYNC</td><td>Oscilátor 2 začíná znovu s každým cyklem oscilátoru 1. Rozlaď osc 2 (nebo ho moduluj) a dostaneš řezavý sync.</td></tr>
+        <tr><td>KEY RESET</td><td>Oscilátory začínají každou notu ve stejné fázi: každý úder basy zní stejně průrazně. Vypnuté = volně běžící, živější.</td></tr>
+        <tr><td>OSC 2 PHASE</td><td>Fáze osc 2 vůči osc 1. 180° u saw vyruší liché harmonické (zvuk o oktávu výš).</td></tr>
+        <tr><td>WAVESHAPE</td><td>Plynulý přechod Sine → Triangle → Sharktooth → Saw → Square. Mezipolohy jsou použitelné a modulovatelné.</td></tr>
+        <tr><td>DUTY CYCLE</td><td>Symetrie každého tvaru, u square šířka pulzu. Výška tónu se nemění.</td></tr>
+      </tbody>
+    </table></div>
+    <h3>Sub osc, Noise, Voicing</h3>
+    <ul>
+      <li><strong>SUB OSC</strong>: Sine / Saw / Square, FREQ OFFSET −1 oktáva, −1 Linked (sleduje i FREQUENCY a jeho modulaci) nebo −2 oktávy. PHASE posune sub vůči osc 1, když se spodek ztenčuje.</li>
+      <li><strong>NOISE COLOR</strong>: plynule Red (−6 dB/okt) – Pink – White – Blue – Violet (+6 dB/okt).</li>
+      <li><strong>LEGATO MODE</strong>: <em>Re-Trig</em> = obálky začnou s každou notou od nuly (krátké 1,5ms stažení, bez lupnutí). <em>Legato</em> = překrývané noty jen překlouznou. <em>Add</em> = obálky začnou z aktuální úrovně.</li>
+      <li><strong>DUAL OSC SPREAD</strong>: osc 1 doleva, osc 2 doprava. S crossoverem zůstanou basy v mono.</li>
+      <li><strong>ACCENT</strong>: noty s velocity nad 96 otevřou filtr víc (obálka filtru ×1,5) a ostatní noty se ztiší na 80 %.</li>
+    </ul>
+
+    <h2 id="mixer"><span class="num">04</span>Mixer a drive</h2>
+    <div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:22px;align-items:start">
+      <figure class="shot" style="margin:0"><img src="img/mixer.jpg" alt="Mixer" width="264" height="1096" loading="lazy"></figure>
+      <div>
+        <p>Mixer míchá OSC 1, OSC 2, NOISE a SUB jedné vrstvy (každá vrstva má svůj). Stupnice 0–10 je jako na Moogu: <strong>do 7 je mixer čistý</strong>, nad 7 začne přebuzovat součtový stupeň (červená výseč u knobu). Přebuzení se sčítá: dva oscilátory na 9 kousnou víc než jeden na 10.</p>
+        <p>Ukazatel <strong>DRIVE</strong> pod mixerem ukazuje, jak moc se právě saturuje. Sub má vlastní stupeň a jde mimo hlavní filtry rovnou do sub filtru.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Úroveň (sinus A1)</th><th class="num">3. harmonická</th></tr></thead>
+          <tbody><tr><td>7</td><td class="num">−47 dB</td></tr><tr><td>10</td><td class="num">−19 dB</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <h2 id="filtry"><span class="num">05</span>Filtry</h2>
+    <figure class="shot"><img src="img/filters.jpg" alt="Low pass, high pass a Filters" width="1016" height="732" loading="lazy"><figcaption>LOW PASS (24 dB ladder), HIGH PASS (12 dB) a FILTERS s pořadím a crossoverem.</figcaption></figure>
+    <ul>
+      <li><strong>LOW PASS</strong>: 4pólový ladder filtr (24 dB/okt) se zpětnou vazbou bez zpoždění. Od RESONANCE ~9,5 sám píská, přesně v ladění (odchylka pod 1 cent na 220 Hz až 3 kHz). Úbytek basů při rezonanci je částečně vyrovnaný, jak to známe z Moogu.</li>
+      <li><strong>EG AMOUNT</strong>: kolik obálka filtru (CNTRL) posune cutoff: 10 = 7 oktáv, záporné hodnoty zavírají.</li>
+      <li><strong>HIGH PASS</strong>: 12 dB, s rezonancí a vlastním EG AMOUNT.</li>
+      <li><strong>ORDER</strong>: <em>Serial</em> = LPF a pak HPF (pásmová propust). <em>Parallel</em> = oba sečtené (zářez). <em>HPF Noise</em> = oscilátory jdou do LPF, šum do HPF (čistý spodek a „vzduch“ zvlášť).</li>
+      <li><strong>OSC CROSSOVER + ON/OFF</strong>: doleva = low pass na sub (20 kHz → 40 Hz), doprava = high pass na oscilátory (16 → 500 Hz). Když je zapnutý, maže se i stereo pod 120 Hz: spread zůstane jen ve středech a výškách.</li>
+    </ul>
+    <figure class="strip"><img src="img/subfilter.jpg" alt="Sub filter" width="1016" height="368" loading="lazy"><figcaption>SUB FILTER: vlastní filtr subu (High / Band / Low) s rezonancí a EG AMOUNT.</figcaption></figure>
+
+    <h2 id="cntrl"><span class="num">06</span>Stránka CNTRL</h2>
+    <figure class="shot"><img src="img/cntrl.jpg" alt="Stránka CNTRL 1" width="2400" height="1652" loading="lazy"><figcaption>CNTRL 1: tři LFO, obálky filtru a zesilovače, mod obálka a dva random generátory. Tečka v hlavičce LFO a random bliká v jejich rytmu.</figcaption></figure>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Modul</th><th>Ovladače</th></tr></thead>
+      <tbody>
+        <tr><td>LFO 1–3</td><td>RATE 0,05–50 Hz, nebo se SYNC dělení taktu (8 taktů až 1/64, triolové i s tečkou). KB RESET restartuje LFO s každou notou od fáze PHASE. Tvary Sine, Triangle, Ramp Up, Ramp Down, Square.</td></tr>
+        <tr><td>FILTER ENVELOPE</td><td>ADSR pro EG AMOUNT všech tří filtrů. Attack 1 ms–10 s, decay a release 1 ms–30 s. Attack nabíhá jako RC obvod (rychlý start, měkký konec).</td></tr>
+        <tr><td>AMP ENVELOPE</td><td>ADSR hlasitosti vrstvy.</td></tr>
+        <tr><td>MOD ENVELOPE</td><td>DAHDSR (delay, attack, hold, decay, sustain, release) – volná obálka jen pro modulace.</td></tr>
+        <tr><td>RANDOM 1–2</td><td><em>S+H</em> = schody, <em>Noise</em> = rychlý náhodný signál, <em>Perlin</em> = plynulý organický drift. SLEW uhlazuje skoky, SYNC hodiny v tempu.</td></tr>
+      </tbody>
+    </table></div>
+    <figure class="shot narrow"><img src="img/lfo-panel.jpg" alt="LFO 1" width="768" height="368" loading="lazy"><figcaption>Šipka vpravo v hlavičce je „kabel“: chyť ji a pusť na libovolný knob.</figcaption></figure>
+
+    <h2 id="modulace"><span class="num">07</span>Modulace</h2>
+    <p>ResoOG má 24 modulačních slotů. Každý vede <strong>zdroj → funkce → controller → amount → cíl</strong>. Cílem může být jakýkoli spojitý knob obou vrstev i výstupu. Zdroje jedné vrstvy mohou modulovat i druhou.</p>
+    <h3>Jak vytvořit modulaci</h3>
+    <ul>
+      <li><strong>Přetažením</strong>: šipka v hlavičce LFO, obálky nebo random → pusť na knob (hloubka 25 %).</li>
+      <li><strong>Pravým tlačítkem</strong> na knob → <em>Modulate with</em> → zdroj (i velocity, keyboard, mod wheel, pressure…).</li>
+      <li>V panelu <strong>Mod</strong> (vpravo nahoře nebo klávesa <kbd>9</kbd>) tlačítkem <em>+ Add</em>.</li>
+    </ul>
+    <div style="display:grid;grid-template-columns:150px minmax(0,1fr);gap:22px;align-items:center">
+      <figure class="shot" style="margin:0"><img src="img/knob-mod.jpg" alt="Knob s modulačním prstencem" width="248" height="220" loading="lazy"></figure>
+      <p>Vnější <strong>prstenec</strong> v barvě zdroje ukazuje rozsah modulace, bílá tečka její aktuální hodnotu. Najetím na prstenec se ukáže <code>Random 1 ±20 %</code>; tažením prstence nahoru/dolů měníš hloubku, kolečkem po krocích. Pravé tlačítko nabídne Disable, Invert, Bipolar, Remove a otevření slotu v panelu.</p>
+    </div>
+    <figure class="shot"><img src="img/mod-panel.jpg" alt="Panel modulací" width="2400" height="1652" loading="lazy"><figcaption>Panel Mod: seznam všech routingů (klik na tečku = vypnout, × = smazat) a detail vybraného slotu.</figcaption></figure>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Volba slotu</th><th>Význam</th></tr></thead>
+      <tbody>
+        <tr><td>Bipolar</td><td>Bipolární zdroje (LFO, random, pitch bend) se houpou kolem polohy knobu. Vypnuto = jen jedním směrem.</td></tr>
+        <tr><td>Amount</td><td>Hloubka −100 až +100 % rozsahu knobu. Záporná = obrácená.</td></tr>
+        <tr><td>Controller · Ctrl amount</td><td>Druhý zdroj jako „VCA“: modulace je jen tak silná, jak velký je controller. Příklad: LFO → Frequency s controllerem Mod Wheel = vibrato až po vytočení kolečka.</td></tr>
+        <tr><td>Function · Fn amount</td><td>Scale, Offset, Low / High Clip, Exponential, Norm Exponential, Low / High Pass, Slew, Low / High Slew, Sample &amp; Hold, Bounce.</td></tr>
+      </tbody>
+    </table></div>
+    <p><strong>Bounce</strong> je fyzika míčku: když signál klesne, hodnota volně padá a odráží se od něj. Na ramp LFO dělá wobble, který dopadá a doznívá (preset Bounce Wobble). <strong>Zdroje</strong>: obálky, LFO, random a accent obou vrstev, velocity, keyboard tracking (49 % na cutoffu = filtr sleduje klávesy 1:1), mod wheel, pressure, pitch bend, release velocity, MPE timbre (CC74) a constant.</p>
+
+    <h2 id="output"><span class="num">08</span>Stránka OUTPUT</h2>
+    <figure class="shot"><img src="img/output.jpg" alt="OUTPUT" width="2400" height="1652" loading="lazy"><figcaption>OUTPUT s presetem Warehouse Reese: tape saturace na synthu 1, kompresor zapnutý, měřiče ukazují K-14 úroveň, korelaci a gain reduction.</figcaption></figure>
+    <h3>Saturace (každá vrstva)</h3>
+    <p>Saturace běží 2× převzorkovaná a má automatickou kompenzaci hlasitosti, takže porovnáváš charakter, ne hlasitost. SAT TYPE <strong>Off</strong> = vypnuto (pak SATURATION nic nedělá).</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Typ</th><th>Jak funguje</th><th>Zvuk</th></tr></thead>
+      <tbody>
+        <tr><td>Tube</td><td>Nesymetrická tanh křivka (záporné půlvlny tvrdší)</td><td>Sudé harmonické, hřejivé zahuštění</td></tr>
+        <tr><td>Tape</td><td>Měkká symetrická křivka + úbytek výšek s rostoucím drivem</td><td>Kulaté, stlačené, tmavší</td></tr>
+        <tr><td>Drive</td><td>Kubický měkký ořez přecházející v tvrdý</td><td>Tranzistorové kousnutí, agresivní</td></tr>
+      </tbody>
+    </table></div>
+    <h3>Delay (synth 1) · Chorus (synth 2)</h3>
+    <ul>
+      <li><strong>Delay</strong>: čas 1 ms–1,4 s nebo v notách (SYNC), FEEDBACK, <strong>DELAY HPF</strong> přímo ve zpětné vazbě (ozvěny nezabahní sub), MIX, DELAY STEREO = ping-pong. Změna času klouže jako u pásky.</li>
+      <li><strong>Chorus</strong>: RATE, DEPTH, <strong>CHORUS HPF</strong> (chorusuje jen nad touto frekvencí, sub zůstane pevný), MIX, EXPAND = širší stereo.</li>
+    </ul>
+    <h3>Summing, kompresor a měřiče</h3>
+    <figure class="strip"><img src="img/meters.jpg" alt="Měřiče" width="1136" height="292" loading="lazy"><figcaption>IN a OUT ve stupnici K-14 (0 = −14 dBFS, zelená do 0, žlutá do +4, červená nad). Korelace: +1 = mono, kolem +0,5 = zdravé stereo, pod 0 = pozor na mono. Gain reduction kompresoru v dB.</figcaption></figure>
+    <ul>
+      <li><strong>SYNTH 1/2 LEVEL, PAN, MUTE</strong> a svislý <strong>VOLUME</strong> (dvojklik = 0 dB).</li>
+      <li><strong>Kompresor</strong> (tlačítko COMPRESSOR): ATTACK 0,01 ms–1 s, RATIO 1:1–20:1, THRESHOLD s automatickým make-upem, MIX pro paralelní kompresi. <strong>FET</strong> = zpětnovazební detekce a jemné zkreslení jako klasický FET limiter. Release je automatický: delší, když kompresor tlačí víc.</li>
+    </ul>
+
+    <h2 id="hrani"><span class="num">09</span>Hraní a lišty</h2>
+    <figure class="strip"><img src="img/keyboard.jpg" alt="Klávesnice" width="2400" height="296" loading="lazy"><figcaption>PB (pitch bend, vrací se na střed) a MW (mod wheel), 18 kláves (C1 = MIDI 36 jako v Abletonu), posuvník rozsahu, Hold a oktávy.</figcaption></figure>
+    <figure class="strip"><img src="img/topbar.jpg" alt="Horní lišta" width="2400" height="72" loading="lazy"><figcaption>Logo, záložky stránek (klávesy 1–5), undo/redo, A/B + Copy, presety, ID instance pro budoucí Virtual CV, Mod, Help (tooltipy, velikost okna 70–150 %, tiché přepínání presetů).</figcaption></figure>
+    <figure class="strip"><img src="img/bottombar.jpg" alt="Dolní lišta" width="2400" height="56" loading="lazy"><figcaption>Layered / Duophonic, Glide always / legato, rozsah pitch bendu, kategorie a preset, oversampling 1×/2×/4×, CPU instance a špička výstupu.</figcaption></figure>
+    <p><strong>Tiché přepínání presetů</strong> (Help, výchozí zapnuto): při změně presetu se výstup na 6 ms ztlumí, preset se nahraje, smažou se ozvěny delaye a staré noty a zvuk se zase plynule vrátí. Žádné lupnutí ani ozvěny starého zvuku v novém.</p>
+
+    <!-- recipes -->
+    <section class="genre-head" id="bass">
+      <p class="tempo">125–140 BPM · klub, sub do 40 Hz</p>
+      <h2>Techno bass</h2>
+      <p>Basa musí mít čistý mono spodek, hrát s kopákem a mít charakter ve středech.</p>
+    </section>
+    <div class="recipe">
+      <div class="recipe-head"><h4>Rolling bass</h4><span class="where">preset Classic Ladder Bass</span></div>
+      <div class="settings"><span class="chip">Waveshape <b>Saw</b></span><span class="chip">Cutoff <b>350–500 Hz</b></span><span class="chip">Resonance <b>3</b></span><span class="chip">EG <b>+5</b></span><span class="chip">Filter decay <b>150–250 ms</b></span><span class="chip">Sustain <b>0 %</b></span></div>
+      <div class="recipe-body"><p>Hraj šestnáctiny mezi kopáky. Délku „klapnutí“ nastavuje FILTER DECAY; v rytmu pomůže velocity → EG AMOUNT (preset Velocity Bite). Sub drž na SINE −1 oktáva a nech ho pod kopákem.</p></div>
+    </div>
+    <div class="recipe">
+      <div class="recipe-head"><h4>Široká basa, mono spodek</h4><span class="where">preset Warehouse Reese</span></div>
+      <div class="settings"><span class="chip">Detune <b>+0,15–0,25</b></span><span class="chip">Spread <b>8–9</b></span><span class="chip">Crossover <b>ON, VCO HP ~120 Hz</b></span><span class="chip">Sat <b>Tape 5–6</b></span></div>
+      <div class="recipe-body"><p>Crossover vezme oscilátorům spodek a nechá sub čistý a v mono. Korelace na stránce OUTPUT by měla zůstat nad +0,3.</p></div>
+    </div>
+
+    <section class="genre-head" id="dub">
+      <p class="tempo">115–125 BPM · delay s dlouhou zpětnou vazbou</p>
+      <h2>Dub techno</h2>
+      <p>Krátké akordové staby rozpuštěné v ozvěnách. Díky HPF ve smyčce delaye ozvěny nezakalí basu.</p>
+    </section>
+    <div class="recipe">
+      <div class="recipe-head"><h4>Stab jednou rukou</h4><span class="where">preset Chord Echo Dub / Dub Techno Stab</span></div>
+      <div class="settings"><span class="chip">Synth 2 <b>FREQUENCY +7 st</b></span><span class="chip">Amp <b>D 300 ms, S 0</b></span><span class="chip">Delay <b>1/8 D, FB 6–7, HPF 500 Hz</b></span><span class="chip">Chorus <b>40 %</b></span></div>
+      <div class="recipe-body"><p>Synth 2 hraje kvintu (FREQUENCY +7), takže jedna klávesa zní jako akord. Automatizuj LPF CUTOFF synthu 1 pomalu přes osm taktů a DELAY FEEDBACK v breaku.</p></div>
+    </div>
+
+    <section class="genre-head" id="acid">
+      <p class="tempo">130–145 BPM · rezonance a accent</p>
+      <h2>Acid</h2>
+      <p>Squelch vzniká z vysoké rezonance, krátké obálky filtru, accentu a slidů.</p>
+    </section>
+    <div class="recipe">
+      <div class="recipe-head"><h4>Klasická acid linka</h4><span class="where">preset Acid Squelch / Acid Square</span></div>
+      <div class="settings"><span class="chip">Resonance <b>8–8,5</b></span><span class="chip">EG <b>+6,5–7</b></span><span class="chip">Filter decay <b>~170 ms</b></span><span class="chip">Accent <b>ON</b></span><span class="chip">Legato <b>Legato</b></span><span class="chip">Glide <b>60 ms, legato</b></span></div>
+      <div class="recipe-body"><p>Noty s velocity nad 96 dostanou accent (víc filtru), překrývané noty překlouznou bez nového úderu obálky. Saturace Drive 5–7 přidá agresi.</p></div>
+    </div>
+
+    <section class="genre-head" id="ambient">
+      <p class="tempo">volné tempo · dlouhé noty</p>
+      <h2>Ambient</h2>
+      <p>Pomalé obálky, Perlin random a pomalá LFO dělají zvuk, který se nikdy přesně neopakuje.</p>
+    </section>
+    <div class="recipe">
+      <div class="recipe-head"><h4>Dýchající drone</h4><span class="where">preset Subharmonic Drone / Breathing Noise Bass</span></div>
+      <div class="settings"><span class="chip">Amp <b>A 1–2 s, R 3–4 s</b></span><span class="chip">LFO <b>0,05–0,1 Hz → cutoff 15 %</b></span><span class="chip">Random <b>Perlin 0,2–0,4 Hz → detune</b></span><span class="chip">Delay <b>30 %, FB 6</b></span></div>
+      <div class="recipe-body"><p>Drž jednu notu dlouho. Order HPF Noise pošle šum přes vlastní high pass, takže přidává vzduch, ale nekalí spodek.</p></div>
+    </div>
+
+    <section class="genre-head" id="classic">
+      <p class="tempo">inspirace modely Moog</p>
+      <h2>Klasika Moog</h2>
+      <p>Presety v kategorii Classic napodobují charakter slavných Moogů. Nejsou to modely obvodů, ale nastavení ve stejném duchu.</p>
+    </section>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Inspirace</th><th>Preset</th><th>Klíč ke zvuku</th></tr></thead>
+      <tbody>
+        <tr><td>Minimoog Model D</td><td>Seventies Fat Bass</td><td>dva saw na 8 (mixer přebuzený), ladder ~500 Hz</td></tr>
+        <tr><td>Taurus</td><td>Pedal Thunder · Pedal Sub Pressure</td><td>sub −2 oktávy, pomalý decay filtru, glide</td></tr>
+        <tr><td>Sub 37 / Sub Phatty</td><td>Multidrive Growl</td><td>sharktooth + square na 9, Drive saturace</td></tr>
+        <tr><td>Prodigy</td><td>Sync Sweep Bass</td><td>hard sync, mod obálka na detune</td></tr>
+        <tr><td>Voyager</td><td>Wide Voyager Lead</td><td>osc 2 +1 oktáva, glide, vibrato na mod wheelu</td></tr>
+        <tr><td>Mother-32</td><td>Patchable Seq Bass</td><td>rezonantní square, accent, S+H v tempu</td></tr>
+        <tr><td>Subharmonicon</td><td>Subharmonic Drone</td><td>kvinta na osc 2, sub −2 oktávy</td></tr>
+        <tr><td>Matriarch</td><td>Stereo Matriarch Pad</td><td>obě vrstvy, chorus + ping-pong, dlouhé obálky</td></tr>
+        <tr><td>Little Phatty</td><td>Phatty Pluck</td><td>rychle se zavírající saw, delay s tečkou</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2 id="presety"><span class="num">10</span>Tovární presety</h2>
+    <p>39 presetů v kategoriích. Klik na název presetu → Factory → kategorie, nebo šipky ◀ ▶.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Preset</th><th>Na co a co otočit</th></tr></thead>
+      <tbody>
+        <tr class="cat"><td colspan="2">Basics</td></tr>
+        <tr><td>Init</td><td>Neutrální start: jedna vrstva se saw, otevřená obálka filtru.</td></tr>
+        <tr class="cat"><td colspan="2">Bass</td></tr>
+        <tr><td>Classic Ladder Bass</td><td>Kulatá analogová basa pro techno a house. Jas = CUTOFF, krátkost = FILTER DECAY.</td></tr>
+        <tr><td>Deep Blue S+H</td><td>Sharktooth basa, sample &amp; hold v tempu na cutoffu a dub delay.</td></tr>
+        <tr><td>Reese Wide</td><td>Dva rozladěné saw do šířky, basy drží v mono crossover.</td></tr>
+        <tr><td>Perlin Growl</td><td>Sharktooth growl, filtr hýbe plynulý Perlin random.</td></tr>
+        <tr><td>Bounce Wobble</td><td>Ramp LFO v tempu přes funkci Bounce: wobble, který padá a odskakuje.</td></tr>
+        <tr><td>Rubber Funk</td><td>Funky basa ze 70. let, gumový filtr a legato slidy.</td></tr>
+        <tr><td>Octave Pop Bass</td><td>Synth-pop 80. let: osc 2 o oktávu výš pro poskakování.</td></tr>
+        <tr><td>Velocity Bite</td><td>Slabě = kulatá basa, silně = kousne. Velocity otevírá obálku filtru.</td></tr>
+        <tr><td>Triplet Wobble</td><td>Sinusový wobble v osminových triolách na cutoffu.</td></tr>
+        <tr class="cat"><td colspan="2">Sub</td></tr>
+        <tr><td>Sub Foundation</td><td>Čistý sinusový sub s trochou harmonických pro malé reproduktory.</td></tr>
+        <tr><td>Pedal Sub Pressure</td><td>Čistá váha subu jako Taurus, přes tube saturaci.</td></tr>
+        <tr class="cat"><td colspan="2">Classic</td></tr>
+        <tr><td>Seventies Fat Bass</td><td>Ve stylu Minimoog Model D: dva saw přebuzené v mixeru, kulatý ladder.</td></tr>
+        <tr><td>Pedal Thunder</td><td>Inspirace Taurus pedály: hluboký saw nad sinusem o dvě oktávy níž.</td></tr>
+        <tr><td>Multidrive Growl</td><td>Growl ve stylu Sub 37: sharktooth a square tvrdě do mixeru plus drive.</td></tr>
+        <tr><td>Sync Sweep Bass</td><td>Hard sync jako u Prodigy: mod obálka trhá útok.</td></tr>
+        <tr><td>Patchable Seq Bass</td><td>Ve stylu Mother-32: rezonantní square na sekvence s accentem a S+H.</td></tr>
+        <tr class="cat"><td colspan="2">Acid</td></tr>
+        <tr><td>Acid Squelch</td><td>Rezonantní saw s accentem a legato glidem. Hraj překrývané noty.</td></tr>
+        <tr><td>Acid Square</td><td>Square acid s accentem a slidy. Automatizuj CUTOFF a RESONANCE.</td></tr>
+        <tr><td>Acid Distorted</td><td>Saw acid přes tranzistorový drive, LFO hýbe rezonancí.</td></tr>
+        <tr class="cat"><td colspan="2">Lead</td></tr>
+        <tr><td>Sync Growl</td><td>Hard sync oscilátoru 2 ovládaný mod obálkou.</td></tr>
+        <tr><td>Wide Voyager Lead</td><td>Lead jako Voyager: saw a square o oktávu, glide, vibrato na mod wheelu.</td></tr>
+        <tr><td>Glass Sine Lead</td><td>Sinus a trojúhelník o dvě oktávy, glide, vibrato na mod wheelu.</td></tr>
+        <tr><td>Pressure Swell</td><td>Aftertouch otevírá filtr a přidává vibrato.</td></tr>
+        <tr class="cat"><td colspan="2">Pluck</td></tr>
+        <tr><td>Pulse Pluck</td><td>Úzký pulz s pomalým LFO na duty cycle, krátká obálka. Na arpeggia.</td></tr>
+        <tr><td>Phatty Pluck</td><td>Pluck ve stylu Little Phatty se šestnáctinovým delayem s tečkou.</td></tr>
+        <tr class="cat"><td colspan="2">Techno</td></tr>
+        <tr><td>Techno Rumble</td><td>Saturovaný sinusový sub s tmavým šumem, parťák ke kopáku.</td></tr>
+        <tr><td>Berlin Sequence</td><td>Berlínská škola: rezonantní saw, filtr otevírá velmi pomalé LFO, delay.</td></tr>
+        <tr><td>Detroit Stab</td><td>Krátký square stab, chorus na druhé vrstvě a delay s tečkou.</td></tr>
+        <tr><td>Warehouse Reese</td><td>Tmavý Reese do skladu: široké saw, mono crossover, tape a kompresor.</td></tr>
+        <tr class="cat"><td colspan="2">Dub</td></tr>
+        <tr><td>Dub Techno Stab</td><td>Obě vrstvy: tmavý stab, chorus na synthu 2 a dlouhý filtrovaný delay.</td></tr>
+        <tr><td>Dub Sub Wobble</td><td>Měkký trojúhelníkový sub, pomalý wobble v tempu, dlouhý dub delay.</td></tr>
+        <tr><td>Chord Echo Dub</td><td>Square pluck s kvintou na synthu 2, chorus a dlouhé ozvěny.</td></tr>
+        <tr class="cat"><td colspan="2">Duo</td></tr>
+        <tr><td>Duo Split</td><td>Duophonic: nižší nota basa, vyšší lead s delayem.</td></tr>
+        <tr><td>Duo Bass &amp; Lead</td><td>Duophonic: spodní nota tlustá basa, horní square lead s glidem.</td></tr>
+        <tr class="cat"><td colspan="2">Ambient</td></tr>
+        <tr><td>Ambient Drone Bass</td><td>Pomalá trojúhelníková basa, Perlin drift na detune a pomalé LFO.</td></tr>
+        <tr><td>Subharmonic Drone</td><td>Podle Subharmonicon: kvinta na osc 2, sub o dvě oktávy, pomalé LFO.</td></tr>
+        <tr><td>Stereo Matriarch Pad</td><td>Obě vrstvy široce jako stereo Matriarch: chorus, ping-pong, dlouhé obálky.</td></tr>
+        <tr><td>Breathing Noise Bass</td><td>Trojúhelník s růžovým šumem na vlastním high passu, Perlin na cutoffu.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2 id="mereni"><span class="num">11</span>Měření</h2>
+    <p>Hodnoty měří testovací aplikace ResoOGTests při každém buildu (48 kHz).</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Vlastnost</th><th class="num">Hodnota</th></tr></thead>
+      <tbody>
+        <tr><td>Aliasing saw B6 (1976 Hz) pod 10 kHz, 1× / 2× / 4×</td><td class="num">−78 / −93 / −93 dB</td></tr>
+        <tr><td>Aliasing 2×: saw C5 / pulse 25 % / hard sync</td><td class="num">−97 / −93 / −94 dB</td></tr>
+        <tr><td>Výšky oscilátoru (5. harmonická B6) při 2×</td><td class="num">−0,9 dB</td></tr>
+        <tr><td>Ladder samooscilace 220 / 1000 / 3000 Hz</td><td class="num">&lt; 1 cent</td></tr>
+        <tr><td>CPU: 1 vrstva 2× / 2 vrstvy + efekty 2× / 2 vrstvy 4×</td><td class="num">~1,8 / ~3,4 / ~6 %</td></tr>
+        <tr><td>Latence (2× vrstva + 2× saturace) při 48 kHz</td><td class="num">pár vzorků, hlásí se Live</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2 id="potize"><span class="num">12</span>Řešení potíží</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Problém</th><th>Řešení</th></tr></thead>
+      <tbody>
+        <tr><td>Synth 2 / CNTRL 2 nic nedělá</td><td>Vrstva je ztlumená (MUTE 2). Klikni na červený štítek dole nebo vypni MUTE 2 na OUTPUT.</td></tr>
+        <tr><td>SATURATION nic nedělá</td><td>SAT TYPE je Off. Zvol Tube, Tape nebo Drive.</td></tr>
+        <tr><td>Knoby delaye / chorusu nic nedělají</td><td>DELAY MIX / CHORUS MIX je na 0 %.</td></tr>
+        <tr><td>Kompresor nic nedělá</td><td>Zapni tlačítko COMPRESSOR.</td></tr>
+        <tr><td>OSC CROSSOVER</td><td>Pracuje jen se zapnutým ON/OFF pod ním.</td></tr>
+        <tr><td>PHASE u LFO nic nemění</td><td>PHASE určuje, odkud LFO startuje při KB RESET (nebo v tempu se SYNC).</td></tr>
+        <tr><td>Glide nefunguje</td><td>V dolní liště je „Glide: legato“: glide je jen mezi překrývanými notami.</td></tr>
+        <tr><td>Šum nebo pískání ve výškách</td><td>Oversampling 1× v dolní liště; přepni na 2× nebo 4×.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2 id="klavesy"><span class="num">13</span>Myš a klávesy</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Akce</th><th>Výsledek</th></tr></thead>
+      <tbody>
+        <tr><td>Tažení knobu nahoru/dolů</td><td>Změna hodnoty, <kbd>Shift</kbd> = jemně</td></tr>
+        <tr><td>Kolečko nad knobem</td><td>Krok (u přepínačů jedna volba)</td></tr>
+        <tr><td>Dvojklik na knob</td><td>Napsat hodnotu: <code>2.5k</code>, <code>A3</code>, <code>C#3+20</code>, <code>120 ms</code>, <code>2s</code>, <code>L 30</code></td></tr>
+        <tr><td><kbd>Cmd</kbd>/<kbd>Ctrl</kbd>-klik</td><td>Výchozí hodnota</td></tr>
+        <tr><td>Pravé tlačítko na knob</td><td>Reset, napsat, Modulate with, správa modulací</td></tr>
+        <tr><td>Tažení prstence knobu</td><td>Hloubka modulace</td></tr>
+        <tr><td>Šipka v hlavičce CNTRL → knob</td><td>Nová modulace</td></tr>
+        <tr><td><kbd>1</kbd>–<kbd>5</kbd></td><td>SYNTH 1, CNTRL 1, SYNTH 2, CNTRL 2, OUTPUT</td></tr>
+        <tr><td><kbd>9</kbd> / <kbd>0</kbd>, <kbd>Esc</kbd></td><td>Panel modulací otevřít / zavřít</td></tr>
+        <tr><td><kbd>Cmd</kbd>+<kbd>Z</kbd>, <kbd>Shift</kbd>+<kbd>Cmd</kbd>+<kbd>Z</kbd></td><td>Undo / Redo</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2 id="instalace"><span class="num">14</span>Instalace a soubory</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th></th><th>macOS</th><th>Windows</th></tr></thead>
+      <tbody>
+        <tr><td>VST3</td><td><code>~/Library/Audio/Plug-Ins/VST3/ResoOG.vst3</code></td><td><code>C:\Program Files\Common Files\VST3\ResoOG.vst3</code></td></tr>
+        <tr><td>AU</td><td><code>~/Library/Audio/Plug-Ins/Components/ResoOG.component</code></td><td>–</td></tr>
+        <tr><td>Uživatelské presety</td><td><code>~/Documents/Gavr/ResoOG Presets/*.resoog</code></td><td><code>Documents\Gavr\ResoOG Presets\*.resoog</code></td></tr>
+        <tr><td>Nastavení (tooltipy, velikost)</td><td><code>~/Library/Application Support/Gavr/ResoOG/</code></td><td><code>%APPDATA%\Gavr\ResoOG\</code></td></tr>
+      </tbody>
+    </table></div>
+    <p>V Abletonu: Settings → Plug-Ins → zapni „Use VST3 Plug-In System Folders“ → Rescan. ResoOG najdeš pod Plug-Ins → Gavr.</p>
+
+    <footer>ResoOG · verze 0.2.0 · Gavr. Moog, Minimoog, Taurus, Mariana a názvy modelů jsou ochranné známky Moog Music Inc.; ResoOG s nimi nesouvisí, inspiruje se jen konceptem. VST je ochranná známka Steinberg Media Technologies GmbH.</footer>
+  </div>
+  </main>
+</div>

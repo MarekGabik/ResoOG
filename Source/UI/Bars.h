@@ -38,6 +38,7 @@ private:
     void showPresetMenu();
     void showHelpMenu();
     void stepPreset (int dir);
+    void loadFactory (int index);
     void savePreset();
     void loadPreset();
 

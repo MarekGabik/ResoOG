@@ -53,7 +53,7 @@ Panel Mod: seznam všech slotů a detail (zdroj, cíl, bipolar, amount, controll
 
 | Blok | Řešení |
 |---|---|
-| Oscilátory | analytické tvary s duty (warp fáze), korekce skoků (BLEP) i zlomů (BLAMP) na obou stranách události; hard sync korektně band-limitovaný |
+| Oscilátory | analytické tvary s duty (warp fáze), korekce skoků (BLEP) i zlomů (BLAMP) z integrované kubické B-spline (4 body, 2 vzorky zpoždění) na obou stranách události; hard sync korektně band-limitovaný |
 | Oversampling | JUCE polyphase IIR 2×/4× pro celou vrstvu (oscilátory, mixer, filtry, VCA); 2× výchozí |
 | Mixer | lineární zisk, kanály nad 7 zvyšují přebuzení součtového stupně (měkký saturátor), sub má vlastní stupeň |
 | LPF | 4pólový ZDF ladder, nelinearita na vstupu zpětné vazby, kompenzace úbytku basů (1 + k/2), samooscilace od ~9,5 |
@@ -61,14 +61,16 @@ Panel Mod: seznam všech slotů a detail (zdroj, cíl, bipolar, amount, controll
 | Crossover | LR4: low pass na sub (40 Hz–20 kHz), nebo high pass na oscilátory (16–500 Hz); side pod 120 Hz se maže (mono basy) |
 | Obálky | RC attack (cíl 1,3), exponenciální decay/release; Re-Trig = 1,5ms stažení na nulu → bez lupnutí |
 | Modulace | po kouscích ≤ 32 vzorků v normalizovaném rozsahu cíle; funkce se stavem (slew, LP, S&H, bounce) |
-| Efekty | saturace na základní frekvenci; delay s HPF a tlumením 9 kHz ve smyčce; chorus jen nad nastaveným HPF |
+| Efekty | saturace 2× převzorkovaná (vlastní IIR oversampler, latence se hlásí); delay s HPF a tlumením 9 kHz ve smyčce; chorus jen nad nastaveným HPF |
 | Kompresor | FET = zpětnovazební detekce + jemné zkreslení, release automatický (120 ms, delší při velké kompresi) |
 
 ## 6. Testy a měření (ResoOGTests, 77 kontrol, vše prochází)
 
 - parametry: pořadí tabulek vs. konstanty, 401 unikátních ID, formát/parsování, kódy cílů modulace
 - výchozí patch: rozumná úroveň (−4,7 dBFS), ticho před notou, doznění do ticha
-- aliasing (saw B6 při 48 kHz, nejsilnější alias pod 10 kHz): 1× −53 dB, 2× −70 dB, 4× −84 dB; saw C5 2× −81 dB; pulse 25 % 2× −71 dB; hard sync 2× −78 dB
+- aliasing (saw B6 při 48 kHz, nejsilnější alias pod 10 kHz): 1× −78 dB, 2× −93 dB, 4× −93 dB; saw C5 2× −97 dB; pulse 25 % 2× −93 dB; hard sync 2× −94 dB; výšky oscilátoru při 2× −0,9 dB na 9,9 kHz
+- tiché přepínání presetů: fade bez lupnutí, ozvěny a staré noty smazané
+- audit: všech 185 zvukových parametrů mění výstup
 - mixer: úroveň 7 → 3. harmonická −47 dB, úroveň 10 → −19 dB
 - ladder: samooscilace 220/1000/3000 Hz s odchylkou < 1 cent
 - glide, duophonic přidělení, priorita poslední noty, sustain, Re-Trig bez lupnutí
@@ -85,7 +87,6 @@ Panel Mod: seznam všech slotů a detail (zdroj, cíl, bipolar, amount, controll
 - **Virtual CV** (8 × 8 mezi instancemi): zatím jen generované ID instance v liště; přijde ve fázi 3.
 - **MPE**: CC74 (timbre) a pressure fungují jako globální zdroje; plné MPE per-note ve fázi 3.
 - **Klávesnice**: místo „Correction“ a „Scale“ jsou zatím tlačítka oktáv a Hold; scale lock a ribbon režim ve fázi 2.
-- **Silent preset changes**: zatím ne.
 - Chorus rate 0,05–20 Hz (zadání 0,5–50 Hz – nad 20 Hz už to není chorus); kompresor má automatický release (zadání ho neuvádí).
 - Přidáno: oversampling 1×/2×/4×, ukazatel drive mixeru, glide jen pro legato, rozsah pitch bendu.
 
@@ -94,7 +95,7 @@ Panel Mod: seznam všech slotů a detail (zdroj, cíl, bipolar, amount, controll
 | Fáze | Obsah | Brána (musí projít) |
 |---|---|---|
 | 0.1 ✅ | engine obou vrstev, matice, efekty, UI všech stránek, presety, CI | všechny testy výše, universal build, auval, VST3 v Live |
-| 0.2 | poslech a doladění zvuku v Live (charakter ladderu, mixer, obálky), další presety (cíl 40), silent preset change, scale lock klávesnice | null/regresní testy presetů, CPU ≤ současné +20 % |
-| 0.3 | MPE per-note, Virtual CV mezi instancemi (sdílená paměť, 8 × 8), modulace z CV IN | test dvou instancí v jednom procesu, latence CV ≤ 1 blok |
-| 0.4 | oversampling efektů, vylepšený oscilátor (vyšší řád BLEP) pro 2× < −80 dB i na B6 | aliasing test 2× > 80 dB |
-| 1.0 | manuál CS/EN se screenshoty (`--manual-shots`), audit vláken/paměti, podepsání a notarizace | audit, testy na Windows i Mac zelené |
+| 0.2 ✅ | BLEP/BLAMP 4. řádu, 2× saturace, silent preset change, plynulý drive, 39 presetů, manuál CS/EN se screenshoty, audit parametrů | aliasing 2× > 85 dB ✅, CPU ≤ +20 % ✅, audit 185/185 ✅ |
+| 0.3 | poslech v Live a doladění charakteru, scale lock a ribbon na klávesnici, MPE per-note | regresní testy presetů |
+| 0.4 | Virtual CV mezi instancemi (8 × 8), modulace z CV IN | test dvou instancí v jednom procesu, latence CV ≤ 1 blok |
+| 1.0 | audit vláken/paměti, podepsání a notarizace, Windows instalátor | testy na Windows i Mac zelené |

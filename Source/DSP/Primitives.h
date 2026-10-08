@@ -47,16 +47,18 @@ struct Ramp
 
 //==============================================================================
 // Oscillator with continuously morphing shape (Sine, Triangle, Sharktooth, Saw, Square) and duty cycle
-// on every shape. Discontinuities are corrected with 2-point PolyBLEP (steps) and PolyBLAMP (kinks)
-// using a one-sample delay, so corrections can be applied on both sides of an event. This also makes
-// hard sync band-limited.
+// on every shape. Discontinuities are corrected with 4-point BLEP (steps) and BLAMP (kinks) residuals
+// derived from the cubic B-spline (aliases fall off as sinc^4 instead of sinc^2 of the 2-point PolyBLEP).
+// The output is delayed by two samples so corrections reach two samples on each side of an event.
+// This also makes hard sync band-limited.
 class ShapeOsc
 {
 public:
     void reset (double startPhase = 0.0)
     {
         phase = wrap01 (startPhase);
-        held = 0.0;
+        q0 = q1 = 0.0;
+        acc[0] = acc[1] = acc[2] = acc[3] = 0.0;
         primed = false;
     }
 
@@ -129,17 +131,35 @@ private:
         }
     }
 
-    // Event at phase q happened x samples ago (0 <= x < 1): correct the jump between left and right limits
-    void event (double leftV, double rightV, double leftS, double rightS, double dt, double x, double& corrPrev, double& corrCur)
+    // Integrated cubic B-spline (step residual) and its integral (ramp residual), tau in samples from the event
+    static double splineStep (double t)   // S(t) for -2 <= t <= 0
+    {
+        if (t <= -1.0) { const double u = 2.0 + t; return u * u * u * u / 24.0; }
+        const double t2 = t * t;
+        return 1.0 / 24.0 + 2.75 / 6.0 + (4.0 * t - 2.0 * t2 * t - 0.75 * t2 * t2) / 6.0;
+    }
+    static double splineRamp (double t)   // A(t) for -2 <= t <= 0
+    {
+        if (t <= -1.0) { const double u = 2.0 + t; return u * u * u * u * u / 120.0; }
+        const double t2 = t * t;
+        return 1.0 / 120.0 + 0.5 * (t + 1.0) + (2.0 * t2 - 0.5 * t2 * t2 - 0.15 * t2 * t2 * t - 1.65) / 6.0;
+    }
+    static double stepResidual (double t) { return t <= -2.0 || t >= 2.0 ? 0.0 : (t < 0.0 ? splineStep (t) : -splineStep (-t)); }
+    static double rampResidual (double t) { return t <= -2.0 || t >= 2.0 ? 0.0 : splineRamp (-std::abs (t)); }
+
+    // Event happened x samples before the current sample (0 <= x < 1): correct the jump between left and right limits
+    void event (double leftV, double rightV, double leftS, double rightS, double dt, double x)
     {
         const double h = rightV - leftV;
         const double ds = (rightS - leftS) * dt;
-        const double x2 = x * x, y = 1.0 - x;
-        corrPrev += 0.5 * h * x2 + ds * x2 * x / 6.0;
-        corrCur  += -0.5 * h * y * y + ds * y * y * y / 6.0;
+        for (int j = 0; j < 4; ++j)
+        {
+            const double t = x + (double) (j - 2);
+            acc[j] += h * stepResidual (t) + ds * rampResidual (t);
+        }
     }
 
-    void naturalEvents (double p0, double p1, double dt, double tEnd, double& corrPrev, double& corrCur)
+    void naturalEvents (double p0, double p1, double dt, double tEnd)
     {
         // events strictly inside (p0, p1]; p1 may exceed 1 (wrap); tEnd = distance from p1 to "now" in samples
         constexpr double e = 1.0e-9;
@@ -153,13 +173,13 @@ private:
             {
                 const double x = (p1 - dPoint) / dt + tEnd;
                 if (x < 1.0)
-                    event (value (d - e), value (d), slope (d - e), slope (d), dt, std::max (0.0, x), corrPrev, corrCur);
+                    event (value (d - e), value (d), slope (d - e), slope (d), dt, std::max (0.0, x));
             }
             if (cycleEnd <= p1)
             {
                 const double x = (p1 - cycleEnd) / dt + tEnd;
                 if (x < 1.0)
-                    event (value (1.0 - e), value (0.0), slope (1.0 - e), slope (0.0), dt, std::max (0.0, x), corrPrev, corrCur);
+                    event (value (1.0 - e), value (0.0), slope (1.0 - e), slope (0.0), dt, std::max (0.0, x));
             }
             start = cycleEnd;
         }
@@ -168,7 +188,6 @@ private:
     float tickInternal (double dt, bool sync, double masterX, double resetPhase, bool& wrapped, double& wrapX)
     {
         dt = std::min (dt, 0.45);
-        double corrPrev = 0.0, corrCur = 0.0;
         wrapped = false;
         wrapX = 0.0;
 
@@ -177,18 +196,18 @@ private:
             constexpr double e = 1.0e-9;
             masterX = std::clamp (masterX, 0.0, 0.999999);
             const double pReset = phase + dt * (1.0 - masterX);       // phase reached when the master wrapped
-            naturalEvents (phase, pReset, dt, masterX, corrPrev, corrCur);
+            naturalEvents (phase, pReset, dt, masterX);
             const double a = wrap01 (pReset);
             const double r = wrap01 (resetPhase);
-            event (value (a > e ? a - e : 1.0 - e), value (r), slope (a > e ? a - e : 1.0 - e), slope (r), dt, masterX, corrPrev, corrCur);
+            event (value (a > e ? a - e : 1.0 - e), value (r), slope (a > e ? a - e : 1.0 - e), slope (r), dt, masterX);
             const double p1 = r + dt * masterX;
-            naturalEvents (r, p1, dt, 0.0, corrPrev, corrCur);
+            naturalEvents (r, p1, dt, 0.0);
             phase = wrap01 (p1);
         }
         else
         {
             const double p1 = phase + dt;
-            naturalEvents (phase, p1, dt, 0.0, corrPrev, corrCur);
+            naturalEvents (phase, p1, dt, 0.0);
             if (p1 >= 1.0)
             {
                 wrapped = true;
@@ -198,13 +217,15 @@ private:
         }
 
         const double now = value (phase);
-        if (! primed) { held = now; primed = true; }
-        const double out = held + corrPrev;
-        held = now + corrCur;
+        if (! primed) { q0 = q1 = now; primed = true; }
+        const double out = q0 + acc[0];
+        q0 = q1;
+        q1 = now;
+        acc[0] = acc[1]; acc[1] = acc[2]; acc[2] = acc[3]; acc[3] = 0.0;
         return (float) out;
     }
 
-    double phase = 0.0, held = 0.0;
+    double phase = 0.0, q0 = 0.0, q1 = 0.0, acc[4] {};
     bool primed = false;
     double m = 3.0, d = 0.5;
 };

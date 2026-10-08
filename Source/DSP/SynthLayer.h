@@ -51,12 +51,11 @@ private:
     dsp::RandomGen rnd[2];
 
     enum R { rFreq, rDetune, rWave, rDuty, rColour, rLvl1, rLvl2, rLvlN, rLvlS,
-             rLpf, rLpfK, rLpfEg, rHpf, rHpfR, rHpfEg, rSub, rSubR, rSubEg, rSpread, rXover, numRamps };
+             rLpf, rLpfK, rLpfEg, rHpf, rHpfR, rHpfEg, rSub, rSubR, rSubEg, rSpread, rXover, rPre, rPost, rSubPre, rSubPost, numRamps };
     dsp::Ramp ramps[numRamps];
     bool rampsPrimed = false;
 
     double pitch = 48.0, targetPitch = 48.0;
-    bool gliding = false;
     int currentNote = -1;
     float velocity = 0.0f;
     bool accented = false;
