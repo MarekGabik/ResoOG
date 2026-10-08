@@ -402,14 +402,16 @@ void Knob::showEditor()
     editor->setBounds (2, getHeight() - 20, getWidth() - 4, 20);
     addAndMakeVisible (*editor);
     editor->grabKeyboardFocus();
-    editor->onReturnKey = [this]
+    // MSVC cannot take `this` in the init-capture of a nested lambda: create the SafePointer first
+    SafePointer<Knob> safe (this);
+    editor->onReturnKey = [this, safe]
     {
         const auto text = editor->getText();
         const float v = param->getValueForText (text);
         attachment->setValueAsCompleteGesture (param->convertFrom0to1 (v));
-        MessageManager::callAsync ([sp = SafePointer<Knob> (this)] { if (sp) sp->editor.reset(); });
+        MessageManager::callAsync ([safe] { if (safe) safe->editor.reset(); });
     };
-    editor->onEscapeKey = [this] { MessageManager::callAsync ([sp = SafePointer<Knob> (this)] { if (sp) sp->editor.reset(); }); };
+    editor->onEscapeKey = [safe] { MessageManager::callAsync ([safe] { if (safe) safe->editor.reset(); }); };
     editor->onFocusLost = editor->onEscapeKey;
 }
 
