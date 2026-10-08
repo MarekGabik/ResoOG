@@ -23,11 +23,17 @@ TopBar::~TopBar()
 Rectangle<float> TopBar::area (int item) const
 {
     const float h = (float) height;
+    auto tabW = [] (int i) { return (float) GlyphArrangement::getStringWidthInt (Fonts::bold (11.0f), tabNames()[i]) + 22.0f + (i == 0 || i == 2 ? 20.0f : 0.0f); };
     if (item >= Tab0 && item < Tab0 + 5)
     {
         float x = 92.0f;
-        for (int i = 0; i < item; ++i) x += (float) GlyphArrangement::getStringWidthInt (Fonts::bold (11.0f), tabNames()[i]) + 26.0f;
-        return { x, 0.0f, (float) GlyphArrangement::getStringWidthInt (Fonts::bold (11.0f), tabNames()[item]) + 22.0f, h };
+        for (int i = 0; i < item; ++i) x += tabW (i) + 4.0f;
+        return { x, 0.0f, tabW (item), h };
+    }
+    if (item == Power1 || item == Power2)
+    {
+        const auto t = area (item == Power1 ? 0 : 2);
+        return { t.getX() + 6.0f, 8.0f, 20.0f, 20.0f };
     }
     const float cx = getWidth() * 0.5f + 220.0f;
     const float x0 = area (Tab0 + 4).getRight() + 16.0f;
@@ -49,6 +55,8 @@ Rectangle<float> TopBar::area (int item) const
 
 int TopBar::itemAt (Point<float> p) const
 {
+    if (area (Power1).contains (p)) return Power1;
+    if (area (Power2).contains (p)) return Power2;
     for (int i = 0; i < 5; ++i) if (area (i).contains (p)) return i;
     for (int i = Undo; i <= Help; ++i) if (area (i).contains (p)) return i;
     return None;
@@ -57,7 +65,8 @@ int TopBar::itemAt (Point<float> p) const
 void TopBar::refresh()
 {
     const auto n = proc.getPresetName();
-    if (n != shownName) { shownName = n; repaint(); }
+    const bool m1 = proc.getParamReal ("sum_mute1") > 0.5f, m2 = proc.getParamReal ("sum_mute2") > 0.5f;
+    if (n != shownName || m1 != muted[0] || m2 != muted[1]) { shownName = n; muted[0] = m1; muted[1] = m2; repaint(); }
 }
 
 void TopBar::paint (Graphics& g)
@@ -76,14 +85,35 @@ void TopBar::paint (Graphics& g)
     // tabs
     for (int i = 0; i < 5; ++i)
     {
-        const auto r = area (i);
+        auto r = area (i);
         const bool on = i == page;
-        g.setColour (on ? Palette::text : (hover == i ? Palette::textDim : Palette::textFaint));
+        const bool layerOff = i < 4 && muted[i / 2];
+        if (i == 0 || i == 2)
+        {
+            // layer power: gold = playing, dim = off
+            const auto pr = area (i == 0 ? Power1 : Power2);
+            const bool hot = hover == (i == 0 ? Power1 : Power2);
+            if (! layerOff)
+            {
+                g.setColour (Palette::curve.withAlpha (0.18f));
+                g.fillEllipse (pr.reduced (1.0f));
+            }
+            Icons::draw (g, Icons::power(), pr.reduced (4.0f), layerOff ? (hot ? Palette::textDim : Palette::textFaint) : Palette::curve, 1.7f);
+            r = r.withTrimmedLeft (20.0f);
+        }
+        auto tc = on ? Palette::text : (hover == i ? Palette::textDim : Palette::textFaint);
+        if (layerOff) tc = tc.withAlpha (0.55f);
+        g.setColour (tc);
         g.setFont (Fonts::bold (11.0f).withExtraKerningFactor (0.06f));
         g.drawText (tabNames()[i], r, Justification::centred, false);
+        if (layerOff)
+        {
+            const float tw = (float) GlyphArrangement::getStringWidthInt (Fonts::bold (11.0f), tabNames()[i]);
+            g.drawLine (r.getCentreX() - tw * 0.5f - 2.0f, r.getCentreY(), r.getCentreX() + tw * 0.5f + 2.0f, r.getCentreY(), 1.0f);
+        }
         if (on)
         {
-            g.setColour (Palette::curve);
+            g.setColour (layerOff ? Palette::textFaint : Palette::curve);
             g.fillRoundedRectangle (r.getX() + 11.0f, r.getBottom() - 5.0f, r.getWidth() - 22.0f, 2.0f, 1.0f);
         }
     }
@@ -153,6 +183,8 @@ String TopBar::getTooltipFor (Point<float> p) const
 {
     switch (itemAt (p))
     {
+        case Power1: return muted[0] ? "Synth 1 is off - click to switch it on" : "Synth 1 is on - click to switch it off";
+        case Power2: return muted[1] ? "Synth 2 is off - click to switch it on" : "Synth 2 is on - click to switch it off";
         case Undo: return "Undo (Cmd/Ctrl+Z)";
         case Redo: return "Redo (Shift+Cmd/Ctrl+Z)";
         case AB:   return "Compare two settings: click to switch between A and B";
@@ -169,6 +201,13 @@ void TopBar::mouseDown (const MouseEvent& e)
 {
     const int it = itemAt (e.position);
     auto* h = proc.history.get();
+    if (it == Power1 || it == Power2)
+    {
+        const char* id = it == Power1 ? "sum_mute1" : "sum_mute2";
+        proc.setParamReal (id, proc.getParamReal (id) > 0.5f ? 0.0f : 1.0f);
+        refresh();
+        return;
+    }
     if (it >= 0 && it < 5) { if (onTab) onTab (it); return; }
     switch (it)
     {

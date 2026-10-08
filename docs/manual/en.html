@@ -184,7 +184,7 @@ html { scroll-behavior: smooth; }
       </div>
     </header>
 
-    <figure class="shot"><img src="img/overview.jpg" alt="SYNTH 1 page with the Seventies Fat Bass preset" width="2400" height="1652"><figcaption>The <strong>SYNTH 1</strong> page with the <strong>Seventies Fat Bass</strong> preset. Page tabs and presets at the top, keyboard at the bottom. Colours mark the source: oscillators cyan, sub violet, noise pink, mixer orange, filters gold.</figcaption></figure>
+    <figure class="shot"><img src="img/overview.jpg" alt="SYNTH 1 page with the Seventies Fat Bass preset" width="2400" height="1552"><figcaption>The <strong>SYNTH 1</strong> page with the <strong>Seventies Fat Bass</strong> preset. Page tabs and presets at the top, keyboard at the bottom. Colours mark the source: oscillators cyan, sub violet, noise pink, mixer orange, filters gold.</figcaption></figure>
 
     <h2 id="princip"><span class="num">01</span>How it works</h2>
     <p>ResoOG is two identical synthesizers (layers) stacked on top of each other. Each layer has its own sources, mixer, filters and envelopes. The pages are:</p>
@@ -208,10 +208,10 @@ html { scroll-behavior: smooth; }
       <li><div>On the <strong>SYNTH 1</strong> page turn <strong>CUTOFF</strong>, <strong>RESONANCE</strong> and <strong>EG AMOUNT</strong> in the low pass filter. That is the heart of the sound.</div></li>
       <li><div>Want movement? On the <strong>CNTRL 1</strong> page grab the arrow in an LFO header and drop it on a knob. A modulation is created.</div></li>
     </ol>
-    <div class="note warn"><p><strong>Synth 2 is muted by default</strong>So the default sound is one clean layer, the Init preset has MUTE 2 on. The SYNTH 2 and CNTRL 2 pages show a red badge at the bottom; click it to unmute the layer.</p></div>
-    <figure class="strip">
-      <img src="img/muted-badge.jpg" alt="Muted layer badge" width="2296" height="120" loading="lazy">
-    </figure>
+    <h3 id="vrstvy">Switching layers on and off</h3>
+    <figure class="strip"><img src="img/layer-power.jpg" alt="Layer power buttons in the top bar" width="1120" height="72" loading="lazy"></figure>
+    <p>Next to the <strong>SYNTH 1</strong> and <strong>SYNTH 2</strong> tabs is a power button. Gold = the layer plays, grey = off. A switched-off layer has its tabs struck through and its pages dimmed, but you can still edit it. An off layer uses no CPU. The MUTE 1 / MUTE 2 buttons on the OUTPUT page show the same state.</p>
+    <div class="note info"><p><strong>The Init preset plays synth 1 only</strong>So the default sound is one clean layer, synth 2 is off in the Init preset. Switch it on with the button next to the SYNTH 2 tab.</p></div>
 
     <h2 id="synth"><span class="num">03</span>The SYNTH page</h2>
     <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:18px;align-items:start">
@@ -267,7 +267,7 @@ html { scroll-behavior: smooth; }
     <figure class="strip"><img src="img/subfilter.jpg" alt="Sub filter" width="1016" height="368" loading="lazy"><figcaption>SUB FILTER: the sub's own filter (High / Band / Low) with resonance and EG AMOUNT.</figcaption></figure>
 
     <h2 id="cntrl"><span class="num">06</span>The CNTRL page</h2>
-    <figure class="shot"><img src="img/cntrl.jpg" alt="The CNTRL 1 page" width="2400" height="1652" loading="lazy"><figcaption>CNTRL 1: three LFOs, filter and amp envelopes, the mod envelope and two random generators. The dot in an LFO or random header blinks with it.</figcaption></figure>
+    <figure class="shot"><img src="img/cntrl.jpg" alt="The CNTRL 1 page" width="2400" height="1552" loading="lazy"><figcaption>CNTRL 1: three LFOs, filter and amp envelopes, the mod envelope and two random generators. The dot in an LFO or random header blinks with it.</figcaption></figure>
     <div class="table-wrap"><table>
       <thead><tr><th>Module</th><th>Controls</th></tr></thead>
       <tbody>
@@ -292,7 +292,7 @@ html { scroll-behavior: smooth; }
       <figure class="shot" style="margin:0"><img src="img/knob-mod.jpg" alt="Knob with a modulation ring" width="248" height="220" loading="lazy"></figure>
       <p>The outer <strong>ring</strong> in the source colour shows the modulation range, the white dot its current value. Hover the ring to see <code>Random 1 ±20 %</code>; drag the ring up/down to change the depth, use the wheel for steps. Right-click offers Disable, Invert, Bipolar, Remove and opening the slot in the panel.</p>
     </div>
-    <figure class="shot"><img src="img/mod-panel.jpg" alt="Modulation panel" width="2400" height="1652" loading="lazy"><figcaption>The Mod panel: all routings (click the dot = disable, × = delete) and the details of the selected slot.</figcaption></figure>
+    <figure class="shot"><img src="img/mod-panel.jpg" alt="Modulation panel" width="2400" height="1552" loading="lazy"><figcaption>The Mod panel: all routings (click the dot = disable, × = delete) and the details of the selected slot.</figcaption></figure>
     <div class="table-wrap"><table>
       <thead><tr><th>Slot option</th><th>Meaning</th></tr></thead>
       <tbody>
@@ -305,7 +305,7 @@ html { scroll-behavior: smooth; }
     <p><strong>Bounce</strong> is ball physics: when the signal drops, the value falls freely and bounces off it. On a ramp LFO it makes a wobble that lands and settles (preset Bounce Wobble). <strong>Sources</strong>: envelopes, LFOs, randoms and accent of both layers, velocity, keyboard tracking (49 % on cutoff = the filter follows the keys 1:1), mod wheel, pressure, pitch bend, release velocity, MPE timbre (CC74) and constant.</p>
 
     <h2 id="output"><span class="num">08</span>The OUTPUT page</h2>
-    <figure class="shot"><img src="img/output.jpg" alt="OUTPUT" width="2400" height="1652" loading="lazy"><figcaption>OUTPUT with the Warehouse Reese preset: tape saturation on synth 1, compressor on, meters show K-14 level, correlation and gain reduction.</figcaption></figure>
+    <figure class="shot"><img src="img/output.jpg" alt="OUTPUT" width="2400" height="1552" loading="lazy"><figcaption>OUTPUT with the Warehouse Reese preset: tape saturation on synth 1, compressor on, meters show K-14 level, correlation and gain reduction.</figcaption></figure>
     <h3>Saturation (per layer)</h3>
     <p>Saturation runs 2× oversampled with automatic loudness compensation, so you compare character, not level. SAT TYPE <strong>Off</strong> = bypassed (SATURATION then does nothing).</p>
     <div class="table-wrap"><table>
@@ -330,7 +330,7 @@ html { scroll-behavior: smooth; }
 
     <h2 id="hrani"><span class="num">09</span>Playing and bars</h2>
     <figure class="strip"><img src="img/keyboard.jpg" alt="Keyboard" width="2400" height="296" loading="lazy"><figcaption>PB (pitch bend, springs back) and MW (mod wheel), 18 keys (C1 = MIDI 36 like Ableton), range slider, Hold and octave buttons.</figcaption></figure>
-    <figure class="strip"><img src="img/topbar.jpg" alt="Top bar" width="2400" height="72" loading="lazy"><figcaption>Logo, page tabs (keys 1–5), undo/redo, A/B + Copy, presets, instance ID for the coming Virtual CV, Mod, Help (tooltips, window size 70–150 %, silent preset changes).</figcaption></figure>
+    <figure class="strip"><img src="img/topbar.jpg" alt="Top bar" width="2400" height="72" loading="lazy"><figcaption>Logo, page tabs (keys 1–5) with layer power buttons, undo/redo, A/B + Copy, presets, instance ID for the coming Virtual CV, Mod, Help (tooltips, window size 70–150 %, silent preset changes).</figcaption></figure>
     <figure class="strip"><img src="img/bottombar.jpg" alt="Bottom bar" width="2400" height="56" loading="lazy"><figcaption>Layered / Duophonic, glide always / legato, pitch bend range, category and preset, oversampling 1×/2×/4×, instance CPU and output peak.</figcaption></figure>
     <p><strong>Silent preset changes</strong> (Help, on by default): when you change presets the output fades out over 6 ms, the preset loads, delay echoes and old notes are cleared, and the sound fades back in. No clicks and no echoes of the old sound in the new one.</p>
 
@@ -480,7 +480,7 @@ html { scroll-behavior: smooth; }
     <div class="table-wrap"><table>
       <thead><tr><th>Problem</th><th>Fix</th></tr></thead>
       <tbody>
-        <tr><td>Synth 2 / CNTRL 2 does nothing</td><td>The layer is muted (MUTE 2). Click the red badge at the bottom or turn off MUTE 2 on OUTPUT.</td></tr>
+        <tr><td>Synth 2 / CNTRL 2 does nothing</td><td>The layer is off (struck-through tab). Switch it on with the power button next to the SYNTH 2 tab.</td></tr>
         <tr><td>SATURATION does nothing</td><td>SAT TYPE is Off. Pick Tube, Tape or Drive.</td></tr>
         <tr><td>Delay / chorus knobs do nothing</td><td>DELAY MIX / CHORUS MIX is at 0 %.</td></tr>
         <tr><td>The compressor does nothing</td><td>Turn on the COMPRESSOR button.</td></tr>

@@ -40,56 +40,6 @@ void Stage::paint (Graphics& g)
     };
     cheek ({ 0.0f, 0.0f, 14.0f, r.getHeight() }, true);
     cheek ({ r.getWidth() - 14.0f, 0.0f, 14.0f, r.getHeight() }, false);
-
-    // name plate
-    const float y = 18.0f + (float) Page::height + 12.0f;
-    g.setFont (Fonts::bold (32.0f).withExtraKerningFactor (-0.03f));
-    g.setColour (Palette::text);
-    g.drawText ("Reso", 34, (int) y, 90, 38, Justification::centredLeft, false);
-    const int resoW = GlyphArrangement::getStringWidthInt (Fonts::bold (32.0f).withExtraKerningFactor (-0.03f), "Reso");
-    g.setColour (Palette::curve);
-    g.drawText ("OG", 34 + resoW, (int) y, 60, 38, Justification::centredLeft, false);
-    const int ogW = GlyphArrangement::getStringWidthInt (Fonts::bold (32.0f).withExtraKerningFactor (-0.03f), "OG");
-    int x = 34 + resoW + ogW + 14;
-    g.setColour (Palette::textDim);
-    g.setFont (Fonts::bold (11.5f).italicised().withExtraKerningFactor (0.22f));
-    g.drawText ("DUAL-LAYER BASS SYNTHESIZER", x, (int) y + 14, 300, 16, Justification::centredLeft, false);
-    x += 300;
-    juce::ignoreUnused (x);
-    if (badge.isNotEmpty())
-    {
-        const auto b = badgeArea();
-        const auto col = muted ? Palette::red : Palette::curve;
-        if (muted)
-        {
-            g.setColour (Palette::red.withAlpha (0.15f));
-            g.fillRoundedRectangle (b, 4.0f);
-        }
-        g.setColour (col.withAlpha (muted ? 0.9f : 0.4f));
-        g.drawRoundedRectangle (b, 4.0f, 1.0f);
-        g.setColour (col);
-        g.setFont (Fonts::mono (11.0f));
-        g.drawText (muted ? badge + "  MUTED - click to unmute" : badge, b, Justification::centred, false);
-    }
-    g.setColour (Colour (0xff8a8b93));
-    g.setFont (Fonts::bold (20.0f).withExtraKerningFactor (0.3f));
-    g.drawText ("GAVR", getWidth() - 140, (int) y + 4, 106, 30, Justification::centredRight, false);
-}
-
-Rectangle<float> Stage::badgeArea() const
-{
-    const String t = muted ? badge + "  MUTED - click to unmute" : badge;
-    return { 648.0f, 18.0f + (float) Page::height + 24.0f, (float) GlyphArrangement::getStringWidthInt (Fonts::mono (11.0f), t) + 16.0f, 19.0f };
-}
-
-void Stage::mouseDown (const MouseEvent& e)
-{
-    if (muted && badgeArea().contains (e.position) && onBadgeClick) onBadgeClick();
-}
-
-void Stage::mouseMove (const MouseEvent& e)
-{
-    setMouseCursor (muted && badgeArea().contains (e.position) ? MouseCursor::PointingHandCursor : MouseCursor::NormalCursor);
 }
 
 //==============================================================================
@@ -123,10 +73,6 @@ ResoOGEditor::ResoOGEditor (ResoOGProcessor& p)
     top.onScale = [this] (int s) { setScalePercent (s); };
     top.getScale = [this] { return roundToInt (scale * 100.0f); };
     drawer.onClose = [this] { setModDrawer (false); };
-    stage.onBadgeClick = [this]
-    {
-        if (page < 4) proc.setParamReal (page < 2 ? "sum_mute1" : "sum_mute2", 0.0f);
-    };
 
     settings->addChangeListener (this);
     updateTooltips();
@@ -166,7 +112,7 @@ void ResoOGEditor::resized()
     content.setBounds (0, 0, logicalWidth, logicalHeight);
     top.setBounds (0, 0, logicalWidth, TopBar::height);
     stage.setBounds (0, TopBar::height, logicalWidth, Stage::height);
-    for (auto* pg : pages) pg->setBounds (32, 18, Page::width, Page::height);
+    for (auto* pg : pages) pg->setBounds (32, Stage::pageTop, Page::width, Page::height);
     keyboard.setBounds (0, TopBar::height + Stage::height, logicalWidth, logicalHeight - TopBar::height - Stage::height - BottomBar::height);
     bottom.setBounds (0, logicalHeight - BottomBar::height, logicalWidth, BottomBar::height);
     drawer.setBounds (0, TopBar::height, ModDrawer::width, logicalHeight - TopBar::height);
@@ -184,7 +130,6 @@ void ResoOGEditor::showPage (int index)
     page = jlimit (0, 4, index);
     for (int i = 0; i < pages.size(); ++i) pages[i]->setVisible (i == page);
     top.setPage (page);
-    stage.setLayerBadge (page < 2 ? "LAYER 1" : (page < 4 ? "LAYER 2" : "MASTER"));
     proc.uiState.setProperty ("page", page, nullptr);
     pages[page]->refreshLive();
 }
@@ -216,7 +161,12 @@ void ResoOGEditor::timerCallback()
 {
     pages[page]->refreshLive();
     keyboard.refresh();
-    stage.setMuted (page < 4 && proc.getParamReal (page < 2 ? "sum_mute1" : "sum_mute2") > 0.5f);
+    // a switched-off layer shows its pages dimmed (still editable)
+    for (int i = 0; i < 4; ++i)
+    {
+        const float a = proc.getParamReal (i < 2 ? "sum_mute1" : "sum_mute2") > 0.5f ? 0.45f : 1.0f;
+        if (std::abs (pages[i]->getAlpha() - a) > 0.01f) pages[i]->setAlpha (a);
+    }
     if ((++tick % 3) == 0)
     {
         top.refresh();

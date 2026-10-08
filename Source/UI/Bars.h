@@ -29,11 +29,12 @@ public:
 
     static constexpr int height = 36;
     static const juce::StringArray& tabNames();
+    juce::Rectangle<float> area (int item) const;
+    juce::Rectangle<float> powerArea (int layer) const { return area (layer == 0 ? Power1 : Power2); }
 
 private:
-    enum Item { None = -1, Tab0 = 0, Undo = 10, Redo, AB, Copy, Prev, Name, Next, CV, Mod, Help };
+    enum Item { None = -1, Tab0 = 0, Undo = 10, Redo, AB, Copy, Prev, Name, Next, CV, Mod, Help, Power1, Power2 };
     void changeListenerCallback (juce::ChangeBroadcaster*) override { repaint(); }
-    juce::Rectangle<float> area (int item) const;
     int itemAt (juce::Point<float>) const;
     void showPresetMenu();
     void showHelpMenu();
@@ -46,6 +47,7 @@ private:
     GlobalSettings& settings;
     int page = 0, hover = None;
     juce::String shownName;
+    bool muted[2] { false, false };
     std::unique_ptr<juce::FileChooser> chooser;
 };
 

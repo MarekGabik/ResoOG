@@ -183,7 +183,7 @@ html { scroll-behavior: smooth; }
       </div>
     </header>
 
-    <figure class="shot"><img src="img/overview.jpg" alt="Stránka SYNTH 1 s presetem Seventies Fat Bass" width="2400" height="1652"><figcaption>Stránka <strong>SYNTH 1</strong> s presetem <strong>Seventies Fat Bass</strong>. Nahoře záložky stránek a presety, dole klávesnice. Barvy označují zdroj: oscilátory azurově, sub fialově, šum růžově, mixer oranžově, filtry zlatě.</figcaption></figure>
+    <figure class="shot"><img src="img/overview.jpg" alt="Stránka SYNTH 1 s presetem Seventies Fat Bass" width="2400" height="1552"><figcaption>Stránka <strong>SYNTH 1</strong> s presetem <strong>Seventies Fat Bass</strong>. Nahoře záložky stránek a presety, dole klávesnice. Barvy označují zdroj: oscilátory azurově, sub fialově, šum růžově, mixer oranžově, filtry zlatě.</figcaption></figure>
 
     <h2 id="princip"><span class="num">01</span>Jak funguje</h2>
     <p>ResoOG jsou dva stejné syntezátory (vrstvy) poskládané na sebe. Každá vrstva má vlastní zdroje, mixer, filtry a obálky. Stránky se dělí takto:</p>
@@ -207,10 +207,10 @@ html { scroll-behavior: smooth; }
       <li><div>Na stránce <strong>SYNTH 1</strong> otoč <strong>CUTOFF</strong>, <strong>RESONANCE</strong> a <strong>EG AMOUNT</strong> v low pass filtru. To je jádro zvuku.</div></li>
       <li><div>Chceš pohyb? Na stránce <strong>CNTRL 1</strong> chyť šipku v hlavičce LFO a pusť ji na knob. Vznikne modulace.</div></li>
     </ol>
-    <div class="note warn"><p><strong>Synth 2 je ve výchozím stavu ztlumený</strong>Aby výchozí zvuk byla jedna čistá vrstva, má Init preset zapnuté MUTE 2. Na stránkách SYNTH 2 a CNTRL 2 to hlásí červený štítek dole; klikni na něj a vrstva se zapne.</p></div>
-    <figure class="strip">
-      <img src="img/muted-badge.jpg" alt="Štítek ztlumené vrstvy" width="2296" height="120" loading="lazy">
-    </figure>
+    <h3 id="vrstvy">Zapnutí a vypnutí vrstev</h3>
+    <figure class="strip"><img src="img/layer-power.jpg" alt="Tlačítka napájení vrstev v horní liště" width="1120" height="72" loading="lazy"></figure>
+    <p>Vedle záložek <strong>SYNTH 1</strong> a <strong>SYNTH 2</strong> je tlačítko napájení. Zlaté = vrstva hraje, šedé = vypnutá. Vypnutá vrstva má přeškrtnuté záložky a její stránky jsou ztlumené, ale dál je jde upravovat. Vypnutá vrstva nebere CPU. Stejný stav mají tlačítka MUTE 1 / MUTE 2 na stránce OUTPUT.</p>
+    <div class="note info"><p><strong>Init preset hraje jen synth 1</strong>Aby výchozí zvuk byla jedna čistá vrstva, je synth 2 v Init presetu vypnutý. Zapneš ho tlačítkem vedle záložky SYNTH 2.</p></div>
 
     <h2 id="synth"><span class="num">03</span>Stránka SYNTH</h2>
     <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:18px;align-items:start">
@@ -266,7 +266,7 @@ html { scroll-behavior: smooth; }
     <figure class="strip"><img src="img/subfilter.jpg" alt="Sub filter" width="1016" height="368" loading="lazy"><figcaption>SUB FILTER: vlastní filtr subu (High / Band / Low) s rezonancí a EG AMOUNT.</figcaption></figure>
 
     <h2 id="cntrl"><span class="num">06</span>Stránka CNTRL</h2>
-    <figure class="shot"><img src="img/cntrl.jpg" alt="Stránka CNTRL 1" width="2400" height="1652" loading="lazy"><figcaption>CNTRL 1: tři LFO, obálky filtru a zesilovače, mod obálka a dva random generátory. Tečka v hlavičce LFO a random bliká v jejich rytmu.</figcaption></figure>
+    <figure class="shot"><img src="img/cntrl.jpg" alt="Stránka CNTRL 1" width="2400" height="1552" loading="lazy"><figcaption>CNTRL 1: tři LFO, obálky filtru a zesilovače, mod obálka a dva random generátory. Tečka v hlavičce LFO a random bliká v jejich rytmu.</figcaption></figure>
     <div class="table-wrap"><table>
       <thead><tr><th>Modul</th><th>Ovladače</th></tr></thead>
       <tbody>
@@ -291,7 +291,7 @@ html { scroll-behavior: smooth; }
       <figure class="shot" style="margin:0"><img src="img/knob-mod.jpg" alt="Knob s modulačním prstencem" width="248" height="220" loading="lazy"></figure>
       <p>Vnější <strong>prstenec</strong> v barvě zdroje ukazuje rozsah modulace, bílá tečka její aktuální hodnotu. Najetím na prstenec se ukáže <code>Random 1 ±20 %</code>; tažením prstence nahoru/dolů měníš hloubku, kolečkem po krocích. Pravé tlačítko nabídne Disable, Invert, Bipolar, Remove a otevření slotu v panelu.</p>
     </div>
-    <figure class="shot"><img src="img/mod-panel.jpg" alt="Panel modulací" width="2400" height="1652" loading="lazy"><figcaption>Panel Mod: seznam všech routingů (klik na tečku = vypnout, × = smazat) a detail vybraného slotu.</figcaption></figure>
+    <figure class="shot"><img src="img/mod-panel.jpg" alt="Panel modulací" width="2400" height="1552" loading="lazy"><figcaption>Panel Mod: seznam všech routingů (klik na tečku = vypnout, × = smazat) a detail vybraného slotu.</figcaption></figure>
     <div class="table-wrap"><table>
       <thead><tr><th>Volba slotu</th><th>Význam</th></tr></thead>
       <tbody>
@@ -304,7 +304,7 @@ html { scroll-behavior: smooth; }
     <p><strong>Bounce</strong> je fyzika míčku: když signál klesne, hodnota volně padá a odráží se od něj. Na ramp LFO dělá wobble, který dopadá a doznívá (preset Bounce Wobble). <strong>Zdroje</strong>: obálky, LFO, random a accent obou vrstev, velocity, keyboard tracking (49 % na cutoffu = filtr sleduje klávesy 1:1), mod wheel, pressure, pitch bend, release velocity, MPE timbre (CC74) a constant.</p>
 
     <h2 id="output"><span class="num">08</span>Stránka OUTPUT</h2>
-    <figure class="shot"><img src="img/output.jpg" alt="OUTPUT" width="2400" height="1652" loading="lazy"><figcaption>OUTPUT s presetem Warehouse Reese: tape saturace na synthu 1, kompresor zapnutý, měřiče ukazují K-14 úroveň, korelaci a gain reduction.</figcaption></figure>
+    <figure class="shot"><img src="img/output.jpg" alt="OUTPUT" width="2400" height="1552" loading="lazy"><figcaption>OUTPUT s presetem Warehouse Reese: tape saturace na synthu 1, kompresor zapnutý, měřiče ukazují K-14 úroveň, korelaci a gain reduction.</figcaption></figure>
     <h3>Saturace (každá vrstva)</h3>
     <p>Saturace běží 2× převzorkovaná a má automatickou kompenzaci hlasitosti, takže porovnáváš charakter, ne hlasitost. SAT TYPE <strong>Off</strong> = vypnuto (pak SATURATION nic nedělá).</p>
     <div class="table-wrap"><table>
@@ -479,7 +479,7 @@ html { scroll-behavior: smooth; }
     <div class="table-wrap"><table>
       <thead><tr><th>Problém</th><th>Řešení</th></tr></thead>
       <tbody>
-        <tr><td>Synth 2 / CNTRL 2 nic nedělá</td><td>Vrstva je ztlumená (MUTE 2). Klikni na červený štítek dole nebo vypni MUTE 2 na OUTPUT.</td></tr>
+        <tr><td>Synth 2 / CNTRL 2 nic nedělá</td><td>Vrstva je vypnutá (přeškrtnutá záložka). Zapni ji tlačítkem napájení vedle záložky SYNTH 2.</td></tr>
         <tr><td>SATURATION nic nedělá</td><td>SAT TYPE je Off. Zvol Tube, Tape nebo Drive.</td></tr>
         <tr><td>Knoby delaye / chorusu nic nedělají</td><td>DELAY MIX / CHORUS MIX je na 0 %.</td></tr>
         <tr><td>Kompresor nic nedělá</td><td>Zapni tlačítko COMPRESSOR.</td></tr>

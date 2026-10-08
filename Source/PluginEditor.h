@@ -8,27 +8,20 @@
 #include "UI/Bars.h"
 #include "UI/ModDrawer.h"
 
-// Panel background with the walnut cheeks and the name plate; hosts the current page
+// Panel background with the walnut cheeks; hosts the current page
 class Stage : public juce::Component
 {
 public:
     void paint (juce::Graphics&) override;
-    void setLayerBadge (const juce::String& s) { badge = s; repaint(); }
-    void setMuted (bool m) { if (m != muted) { muted = m; repaint(); } }
-    std::function<void()> onBadgeClick;
-    void mouseDown (const juce::MouseEvent&) override;
-    void mouseMove (const juce::MouseEvent&) override;
-    static constexpr int height = 614;
+    static constexpr int height = 564;
+    static constexpr int pageTop = 14;
 
 private:
-    juce::Rectangle<float> badgeArea() const;
-    juce::String badge;
-    bool muted = false;
     juce::Image texture;
 };
 
 // The window: top bar, panel pages, keyboard, bottom bar, modulation drawer.
-// Laid out at a fixed logical size (1200 x 826) and scaled as a whole.
+// Laid out at a fixed logical size (1200 x 776) and scaled as a whole.
 class ResoOGEditor : public juce::AudioProcessorEditor,
                      public juce::DragAndDropContainer,
                      private juce::Timer,
@@ -48,8 +41,9 @@ public:
     bool isModDrawerOpen() const { return drawer.isVisible(); }
     void setScalePercent (int percent);
     Page* getPageComponent (int i) { return pages[i]; }
+    TopBar& getTopBar() { return top; }
 
-    static constexpr int logicalWidth = 1200, logicalHeight = 826;
+    static constexpr int logicalWidth = 1200, logicalHeight = 776;
 
 private:
     void timerCallback() override;

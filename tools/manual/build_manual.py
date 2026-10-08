@@ -123,7 +123,7 @@ def page(lang):
     {fig("overview", T("Stránka SYNTH 1 s presetem Seventies Fat Bass", "SYNTH 1 page with the Seventies Fat Bass preset"),
          T("Stránka <strong>SYNTH 1</strong> s presetem <strong>Seventies Fat Bass</strong>. Nahoře záložky stránek a presety, dole klávesnice. Barvy označují zdroj: oscilátory azurově, sub fialově, šum růžově, mixer oranžově, filtry zlatě.",
            "The <strong>SYNTH 1</strong> page with the <strong>Seventies Fat Bass</strong> preset. Page tabs and presets at the top, keyboard at the bottom. Colours mark the source: oscillators cyan, sub violet, noise pink, mixer orange, filters gold."),
-         2400, 1652, lazy=False)}
+         2400, 1552, lazy=False)}
 
     <h2 id="princip"><span class="num">01</span>{T("Jak funguje", "How it works")}</h2>
     <p>{T("ResoOG jsou dva stejné syntezátory (vrstvy) poskládané na sebe. Každá vrstva má vlastní zdroje, mixer, filtry a obálky. Stránky se dělí takto:",
@@ -149,10 +149,11 @@ def page(lang):
       <li><div>{T("Na stránce <strong>SYNTH 1</strong> otoč <strong>CUTOFF</strong>, <strong>RESONANCE</strong> a <strong>EG AMOUNT</strong> v low pass filtru. To je jádro zvuku.", "On the <strong>SYNTH 1</strong> page turn <strong>CUTOFF</strong>, <strong>RESONANCE</strong> and <strong>EG AMOUNT</strong> in the low pass filter. That is the heart of the sound.")}</div></li>
       <li><div>{T("Chceš pohyb? Na stránce <strong>CNTRL 1</strong> chyť šipku v hlavičce LFO a pusť ji na knob. Vznikne modulace.", "Want movement? On the <strong>CNTRL 1</strong> page grab the arrow in an LFO header and drop it on a knob. A modulation is created.")}</div></li>
     </ol>
-    <div class="note warn"><p><strong>{T("Synth 2 je ve výchozím stavu ztlumený", "Synth 2 is muted by default")}</strong>{T("Aby výchozí zvuk byla jedna čistá vrstva, má Init preset zapnuté MUTE 2. Na stránkách SYNTH 2 a CNTRL 2 to hlásí červený štítek dole; klikni na něj a vrstva se zapne.", "So the default sound is one clean layer, the Init preset has MUTE 2 on. The SYNTH 2 and CNTRL 2 pages show a red badge at the bottom; click it to unmute the layer.")}</p></div>
-    <figure class="strip">
-      <img src="img/muted-badge.jpg" alt="{T("Štítek ztlumené vrstvy", "Muted layer badge")}" width="2296" height="120" loading="lazy">
-    </figure>
+    <h3 id="vrstvy">{T("Zapnutí a vypnutí vrstev", "Switching layers on and off")}</h3>
+    <figure class="strip"><img src="img/layer-power.jpg" alt="{T("Tlačítka napájení vrstev v horní liště", "Layer power buttons in the top bar")}" width="1120" height="72" loading="lazy"></figure>
+    <p>{T("Vedle záložek <strong>SYNTH 1</strong> a <strong>SYNTH 2</strong> je tlačítko napájení. Zlaté = vrstva hraje, šedé = vypnutá. Vypnutá vrstva má přeškrtnuté záložky a její stránky jsou ztlumené, ale dál je jde upravovat. Vypnutá vrstva nebere CPU. Stejný stav mají tlačítka MUTE 1 / MUTE 2 na stránce OUTPUT.",
+          "Next to the <strong>SYNTH 1</strong> and <strong>SYNTH 2</strong> tabs is a power button. Gold = the layer plays, grey = off. A switched-off layer has its tabs struck through and its pages dimmed, but you can still edit it. An off layer uses no CPU. The MUTE 1 / MUTE 2 buttons on the OUTPUT page show the same state.")}</p>
+    <div class="note info"><p><strong>{T("Init preset hraje jen synth 1", "The Init preset plays synth 1 only")}</strong>{T("Aby výchozí zvuk byla jedna čistá vrstva, je synth 2 v Init presetu vypnutý. Zapneš ho tlačítkem vedle záložky SYNTH 2.", "So the default sound is one clean layer, synth 2 is off in the Init preset. Switch it on with the button next to the SYNTH 2 tab.")}</p></div>
 
     <h2 id="synth"><span class="num">03</span>{T("Stránka SYNTH", "The SYNTH page")}</h2>
     <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:18px;align-items:start">
@@ -211,7 +212,7 @@ def page(lang):
     {fig("subfilter", "Sub filter", T("SUB FILTER: vlastní filtr subu (High / Band / Low) s rezonancí a EG AMOUNT.", "SUB FILTER: the sub's own filter (High / Band / Low) with resonance and EG AMOUNT."), 1016, 368, "strip")}
 
     <h2 id="cntrl"><span class="num">06</span>{T("Stránka CNTRL", "The CNTRL page")}</h2>
-    {fig("cntrl", T("Stránka CNTRL 1", "The CNTRL 1 page"), T("CNTRL 1: tři LFO, obálky filtru a zesilovače, mod obálka a dva random generátory. Tečka v hlavičce LFO a random bliká v jejich rytmu.", "CNTRL 1: three LFOs, filter and amp envelopes, the mod envelope and two random generators. The dot in an LFO or random header blinks with it."), 2400, 1652)}
+    {fig("cntrl", T("Stránka CNTRL 1", "The CNTRL 1 page"), T("CNTRL 1: tři LFO, obálky filtru a zesilovače, mod obálka a dva random generátory. Tečka v hlavičce LFO a random bliká v jejich rytmu.", "CNTRL 1: three LFOs, filter and amp envelopes, the mod envelope and two random generators. The dot in an LFO or random header blinks with it."), 2400, 1552)}
     <div class="table-wrap"><table>
       <thead><tr><th>{T("Modul", "Module")}</th><th>{T("Ovladače", "Controls")}</th></tr></thead>
       <tbody>
@@ -238,7 +239,7 @@ def page(lang):
       <p>{T("Vnější <strong>prstenec</strong> v barvě zdroje ukazuje rozsah modulace, bílá tečka její aktuální hodnotu. Najetím na prstenec se ukáže <code>Random 1 ±20 %</code>; tažením prstence nahoru/dolů měníš hloubku, kolečkem po krocích. Pravé tlačítko nabídne Disable, Invert, Bipolar, Remove a otevření slotu v panelu.",
             "The outer <strong>ring</strong> in the source colour shows the modulation range, the white dot its current value. Hover the ring to see <code>Random 1 ±20 %</code>; drag the ring up/down to change the depth, use the wheel for steps. Right-click offers Disable, Invert, Bipolar, Remove and opening the slot in the panel.")}</p>
     </div>
-    {fig("mod-panel", T("Panel modulací", "Modulation panel"), T("Panel Mod: seznam všech routingů (klik na tečku = vypnout, × = smazat) a detail vybraného slotu.", "The Mod panel: all routings (click the dot = disable, × = delete) and the details of the selected slot."), 2400, 1652)}
+    {fig("mod-panel", T("Panel modulací", "Modulation panel"), T("Panel Mod: seznam všech routingů (klik na tečku = vypnout, × = smazat) a detail vybraného slotu.", "The Mod panel: all routings (click the dot = disable, × = delete) and the details of the selected slot."), 2400, 1552)}
     <div class="table-wrap"><table>
       <thead><tr><th>{T("Volba slotu", "Slot option")}</th><th>{T("Význam", "Meaning")}</th></tr></thead>
       <tbody>
@@ -252,7 +253,7 @@ def page(lang):
           "<strong>Bounce</strong> is ball physics: when the signal drops, the value falls freely and bounces off it. On a ramp LFO it makes a wobble that lands and settles (preset Bounce Wobble). <strong>Sources</strong>: envelopes, LFOs, randoms and accent of both layers, velocity, keyboard tracking (49 % on cutoff = the filter follows the keys 1:1), mod wheel, pressure, pitch bend, release velocity, MPE timbre (CC74) and constant.")}</p>
 
     <h2 id="output"><span class="num">08</span>{T("Stránka OUTPUT", "The OUTPUT page")}</h2>
-    {fig("output", "OUTPUT", T("OUTPUT s presetem Warehouse Reese: tape saturace na synthu 1, kompresor zapnutý, měřiče ukazují K-14 úroveň, korelaci a gain reduction.", "OUTPUT with the Warehouse Reese preset: tape saturation on synth 1, compressor on, meters show K-14 level, correlation and gain reduction."), 2400, 1652)}
+    {fig("output", "OUTPUT", T("OUTPUT s presetem Warehouse Reese: tape saturace na synthu 1, kompresor zapnutý, měřiče ukazují K-14 úroveň, korelaci a gain reduction.", "OUTPUT with the Warehouse Reese preset: tape saturation on synth 1, compressor on, meters show K-14 level, correlation and gain reduction."), 2400, 1552)}
     <h3>{T("Saturace (každá vrstva)", "Saturation (per layer)")}</h3>
     <p>{T("Saturace běží 2× převzorkovaná a má automatickou kompenzaci hlasitosti, takže porovnáváš charakter, ne hlasitost. SAT TYPE <strong>Off</strong> = vypnuto (pak SATURATION nic nedělá).",
           "Saturation runs 2× oversampled with automatic loudness compensation, so you compare character, not level. SAT TYPE <strong>Off</strong> = bypassed (SATURATION then does nothing).")}</p>
@@ -278,7 +279,7 @@ def page(lang):
 
     <h2 id="hrani"><span class="num">09</span>{T("Hraní a lišty", "Playing and bars")}</h2>
     {fig("keyboard", T("Klávesnice", "Keyboard"), T("PB (pitch bend, vrací se na střed) a MW (mod wheel), 18 kláves (C1 = MIDI 36 jako v Abletonu), posuvník rozsahu, Hold a oktávy.", "PB (pitch bend, springs back) and MW (mod wheel), 18 keys (C1 = MIDI 36 like Ableton), range slider, Hold and octave buttons."), 2400, 296, "strip")}
-    {fig("topbar", T("Horní lišta", "Top bar"), T("Logo, záložky stránek (klávesy 1–5), undo/redo, A/B + Copy, presety, ID instance pro budoucí Virtual CV, Mod, Help (tooltipy, velikost okna 70–150 %, tiché přepínání presetů).", "Logo, page tabs (keys 1–5), undo/redo, A/B + Copy, presets, instance ID for the coming Virtual CV, Mod, Help (tooltips, window size 70–150 %, silent preset changes)."), 2400, 72, "strip")}
+    {fig("topbar", T("Horní lišta", "Top bar"), T("Logo, záložky stránek (klávesy 1–5), undo/redo, A/B + Copy, presety, ID instance pro budoucí Virtual CV, Mod, Help (tooltipy, velikost okna 70–150 %, tiché přepínání presetů).", "Logo, page tabs (keys 1–5) with layer power buttons, undo/redo, A/B + Copy, presets, instance ID for the coming Virtual CV, Mod, Help (tooltips, window size 70–150 %, silent preset changes)."), 2400, 72, "strip")}
     {fig("bottombar", T("Dolní lišta", "Bottom bar"), T("Layered / Duophonic, Glide always / legato, rozsah pitch bendu, kategorie a preset, oversampling 1×/2×/4×, CPU instance a špička výstupu.", "Layered / Duophonic, glide always / legato, pitch bend range, category and preset, oversampling 1×/2×/4×, instance CPU and output peak."), 2400, 56, "strip")}
     <p>{T("<strong>Tiché přepínání presetů</strong> (Help, výchozí zapnuto): při změně presetu se výstup na 6 ms ztlumí, preset se nahraje, smažou se ozvěny delaye a staré noty a zvuk se zase plynule vrátí. Žádné lupnutí ani ozvěny starého zvuku v novém.",
           "<strong>Silent preset changes</strong> (Help, on by default): when you change presets the output fades out over 6 ms, the preset loads, delay echoes and old notes are cleared, and the sound fades back in. No clicks and no echoes of the old sound in the new one.")}</p>
@@ -380,7 +381,7 @@ def page(lang):
     <div class="table-wrap"><table>
       <thead><tr><th>{T("Problém", "Problem")}</th><th>{T("Řešení", "Fix")}</th></tr></thead>
       <tbody>
-        <tr><td>{T("Synth 2 / CNTRL 2 nic nedělá", "Synth 2 / CNTRL 2 does nothing")}</td><td>{T("Vrstva je ztlumená (MUTE 2). Klikni na červený štítek dole nebo vypni MUTE 2 na OUTPUT.", "The layer is muted (MUTE 2). Click the red badge at the bottom or turn off MUTE 2 on OUTPUT.")}</td></tr>
+        <tr><td>{T("Synth 2 / CNTRL 2 nic nedělá", "Synth 2 / CNTRL 2 does nothing")}</td><td>{T("Vrstva je vypnutá (přeškrtnutá záložka). Zapni ji tlačítkem napájení vedle záložky SYNTH 2.", "The layer is off (struck-through tab). Switch it on with the power button next to the SYNTH 2 tab.")}</td></tr>
         <tr><td>{T("SATURATION nic nedělá", "SATURATION does nothing")}</td><td>{T("SAT TYPE je Off. Zvol Tube, Tape nebo Drive.", "SAT TYPE is Off. Pick Tube, Tape or Drive.")}</td></tr>
         <tr><td>{T("Knoby delaye / chorusu nic nedělají", "Delay / chorus knobs do nothing")}</td><td>{T("DELAY MIX / CHORUS MIX je na 0 %.", "DELAY MIX / CHORUS MIX is at 0 %.")}</td></tr>
         <tr><td>{T("Kompresor nic nedělá", "The compressor does nothing")}</td><td>{T("Zapni tlačítko COMPRESSOR.", "Turn on the COMPRESSOR button.")}</td></tr>

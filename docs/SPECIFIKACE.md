@@ -39,7 +39,7 @@ latence oversamplingu se hlásí přes `AsyncUpdater`. Spojité hodnoty se uvnit
 
 ## 4. UI
 
-Logická velikost 1200 × 826, škálování 70–150 % (pevný poměr stran). Horní lišta (36 px): logo, 5 záložek, undo/redo, A/B, Copy,
+Logická velikost 1200 × 776, škálování 70–150 % (pevný poměr stran). Horní lišta (36 px): logo, 5 záložek, undo/redo, A/B, Copy,
 preset ◀ název ▶, CV ID instance, Mod, Help. Panel ve stylu Mariany: světlé štítky modulů s barevnou linkou, ořechové boky,
 knoby se stupnicí a kovovou hlavou, skleněná zlatá tlačítka, LED přepínače. Barvy nesou informaci: oscilátory azurové,
 sub fialový, šum růžový, mixer oranžový, filtry zlaté, voicing zelený; každý modulační zdroj má vlastní barvu (prstenec na cíli).

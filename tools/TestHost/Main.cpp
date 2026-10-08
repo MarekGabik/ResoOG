@@ -571,7 +571,7 @@ static void testEditor()
     if (editor == nullptr) return;
     ed->setSize (ResoOGEditor::logicalWidth, ResoOGEditor::logicalHeight);
 
-    const char* names[] = { "synth1", "cntrl1", "synth2-muted", "cntrl2", "output" };
+    const char* names[] = { "synth1", "cntrl1", "synth2-off", "cntrl2", "output" };
     double worstMs = 0.0;
     for (int i = 0; i < 5; ++i)
     {
@@ -619,6 +619,22 @@ static void testEditor()
             pumpMessages (30);
         }
         check (std::abs (p->getParamReal ("s1_lpf_cutoff") - 220.0f) < 0.5f, "typing \"A3\" sets the cutoff to 220 Hz");
+    }
+
+    // layer power buttons in the top bar switch a layer off and on again
+    {
+        auto& top = editor->getTopBar();
+        const auto pc = top.powerArea (1).getCentre();
+        const bool before2 = p->getParamReal ("sum_mute2") > 0.5f;
+        top.mouseDown (mouse (top, pc, pc, false));
+        const bool after2 = p->getParamReal ("sum_mute2") > 0.5f;
+        const auto pc1 = top.powerArea (0).getCentre();
+        top.mouseDown (mouse (top, pc1, pc1, false));
+        const bool off1 = p->getParamReal ("sum_mute1") > 0.5f;
+        top.mouseDown (mouse (top, pc1, pc1, false));
+        check (before2 != after2 && off1 && p->getParamReal ("sum_mute1") < 0.5f, "power buttons next to SYNTH 1 / SYNTH 2 switch the layers on and off");
+        pumpMessages (60);
+        saveShot (*ed, "layer2-on", 2.0f);
     }
 
     editor->setModDrawer (true);
@@ -705,13 +721,13 @@ static void manualShots (const File& dir)
     {
         write (img, "overview");
         write (crop (img, { 0, 0, 1200, 36 }), "topbar");
-        write (crop (img, { 0, 798, 1200, 28 }), "bottombar");
-        write (crop (img, { 0, 650, 1200, 148 }), "keyboard");
-        write (crop (img, { 186, 48, 352, 548 }), "oscillators");
-        write (crop (img, { 536, 48, 132, 548 }), "mixer");
-        write (crop (img, { 666, 48, 508, 366 }), "filters");
-        write (crop (img, { 26, 48, 162, 548 }), "noise-voicing");
-        write (crop (img, { 666, 412, 508, 184 }), "subfilter");
+        write (crop (img, { 0, 748, 1200, 28 }), "bottombar");
+        write (crop (img, { 0, 600, 1200, 148 }), "keyboard");
+        write (crop (img, { 186, 44, 352, 548 }), "oscillators");
+        write (crop (img, { 536, 44, 132, 548 }), "mixer");
+        write (crop (img, { 666, 44, 508, 366 }), "filters");
+        write (crop (img, { 26, 44, 162, 548 }), "noise-voicing");
+        write (crop (img, { 666, 408, 508, 184 }), "subfilter");
         juce::ignoreUnused (e);
     });
     take ({ "Deep Blue S+H", 0, false, 39 }, [&] (ResoOGEditor& e, const Image& img)
@@ -722,14 +738,14 @@ static void manualShots (const File& dir)
     take ({ "Deep Blue S+H", 1, false, 39 }, [&] (ResoOGEditor&, const Image& img)
     {
         write (img, "cntrl");
-        write (crop (img, { 26, 48, 384, 184 }), "lfo-panel");
+        write (crop (img, { 26, 44, 384, 184 }), "lfo-panel");
     });
     take ({ "Stereo Matriarch Pad", 2, false, 43 }, [&] (ResoOGEditor&, const Image& img) { write (img, "synth2"); });
-    take ({ "Init", 2, false, 43 }, [&] (ResoOGEditor&, const Image& img) { write (crop (img, { 26, 590, 1148, 60 }), "muted-badge"); });
+    take ({ "Init", 2, false, 43 }, [&] (ResoOGEditor&, const Image& img) { write (crop (img, { 0, 0, 560, 36 }), "layer-power"); });
     take ({ "Warehouse Reese", 4, false, 31 }, [&] (ResoOGEditor&, const Image& img)
     {
         write (img, "output");
-        write (crop (img, { 316, 84, 568, 146 }), "meters");
+        write (crop (img, { 316, 80, 568, 146 }), "meters");
     });
     take ({ "Deep Blue S+H", 0, true, 39 }, [&] (ResoOGEditor&, const Image& img)
     {
